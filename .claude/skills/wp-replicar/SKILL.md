@@ -47,7 +47,7 @@ Escrever `clientes/<cliente>/paginas/<slug>.mjs` com as peças de `scripts/eleme
 - `cartao(..., { raio, sombra, borda, fundo, largura })`, `imagem(..., { raio, largura })`, `caixaIcone(..., { posicao, alinhar })`;
 - `{ extra: { ... } }` em qualquer peça, para uma definição do Elementor que as opções não cubram (alinhamentos no telemóvel, por exemplo). Num título, só para uma excepção que a pessoa pediu. Só definições de widgets gratuitos. Em blocos, o mesmo com `{ css: { 'letter-spacing': '-1px' }, cssTelemovel: { ... } }`.
 
-Regras do kit que se mantêm: widgets reais (nunca HTML num widget de código), no máximo três níveis de containers, um só h1, texto alternativo em todas as imagens, português de Portugal. Widgets pagos e animações, só como em "Com aviso".
+Regras do kit que se mantêm: widgets reais (nunca HTML num widget de código), no máximo três níveis de containers, um só h1, texto alternativo em todas as imagens, português de Portugal, animações de entrada só nos widgets e nunca nas secções (containers). Widgets pagos, só como em "Com aviso".
 
 **Imagens:** por defeito, as do cliente (`clientes/<cliente>/imagens/`, ou endereços do site dele). As da referência só com aviso (ver abaixo). Se não houver uma imagem aprovada, deixar a secção sem imagem e dizer à pessoa.
 
@@ -75,7 +75,7 @@ A pessoa decide; o Claude avisa uma vez, em linguagem simples, e segue.
 - **Texto, fotografias ou logótipos da referência:** avisar que são de outra pessoa e que publicá-los pode dar problemas de direitos de autor. Se a referência for do próprio cliente (outro site dele, uma página antiga) ou a pessoa disser que há autorização, usa-se.
 - **Letras pagas ou exclusivas da referência** (Adobe Fonts, letras da marca): avisar que precisam de licença no site do cliente. Por defeito, a Google Font mais parecida.
 - **Widgets pagos** (Elementor Pro, addons): usar se o site do cliente os tiver (ver `levantamento.md`) e avisar que a página deixa de abrir num site sem eles. Por defeito, só gratuitos.
-- **Animações da referência:** a regra do kit é sem animações de entrada, porque há sites onde ficam invisíveis. Se a pessoa as quiser, avisar disso e pôr só nas secções que ela escolher.
+- **Animações da referência:** as animações de entrada passam para os widgets (títulos, textos, imagens, botões), nunca para as secções (containers), para o fundo nunca ficar invisível. Ver no navegador, também em telemóvel, que tudo aparece ao rolar.
 
 ## Nunca
 

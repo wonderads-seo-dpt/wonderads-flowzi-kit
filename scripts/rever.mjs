@@ -119,9 +119,10 @@ for (const c of contadores) {
     bloqueia.push(`Contador com ${c.settings.ending_number}: o Elementor escreve "${Number(c.settings.ending_number).toLocaleString('en-US')}" por defeito. Definir o separador de milhares como espaço, ou usar número fixo.`);
   }
 }
-const animados = widgets.filter((w) => w.settings?._animation && w.settings._animation !== 'none').length
-  + contadores.length;
-if (animados) corrigir.push(`${animados} elemento(s) dependem de animação para aparecer (entrada ou contador). Confirmar no navegador que aparecem depois de rolar: em alguns sites ficam invisíveis.`);
+// Animações de entrada são permitidas (decisão de 14/10/2026); só se lembra de as ver no navegador. Os contadores continuam a corrigir.
+const animados = widgets.filter((w) => w.settings?._animation && w.settings._animation !== 'none').length;
+if (animados) melhorias.push(`${animados} elemento(s) com animação de entrada. Ver no navegador, também no telemóvel, que aparecem depois de rolar.`);
+if (contadores.length) corrigir.push(`${contadores.length} contador(es) dependem de animação para aparecer. Confirmar no navegador que aparecem depois de rolar: em alguns sites ficam invisíveis.`);
 
 const imagens = widgets.filter((w) => w.widgetType === 'image');
 const semAlt = imagens.filter((w) => !w.settings?.image?.alt).length + [...blocos.matchAll(/<img\b(?![^>]*\balt="[^"]+")(?![^>]*wp-block-cover__image-background)[^>]*>/gi)].length;

@@ -23,7 +23,7 @@ O herói abre com o que é mais característico desse mundo: uma fotografia real
 ## Estrutura
 
 - Cada elemento visual diz alguma coisa. Números 01 / 02 / 03 só quando o conteúdo é mesmo uma sequência (os passos de uma primeira consulta, sim; três vantagens, não).
-- Nada de animações de entrada (já é regra do kit). Movimento só quando responde a uma acção da pessoa, como abrir uma pergunta frequente.
+- Animações de entrada só nos widgets, nunca nas secções (containers), para o fundo nunca ficar invisível (regra do kit). Ver no navegador, também em telemóvel, que tudo aparece ao rolar. Fora isso, movimento só quando responde a uma acção da pessoa, como abrir uma pergunta frequente.
 
 ## Os sinais de uma página feita por IA
 

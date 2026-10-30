@@ -43,7 +43,7 @@ Escrever para si, antes de decidir, o que se viu: letras (família, peso, largur
 - **Letras:** só Google Fonts gratuitas, um par concreto (títulos e corpo) com pesos. Se a referência usar uma letra paga ou exclusiva, a Google Font mais parecida, dita pelo nome.
 - **Contraste, sem excepção:** texto a 4,5:1 ou mais sobre o fundo onde está, botões e ícones a 3:1. Calcular cada par com a fórmula da WCAG e escrever o número na tabela da paleta. Texto sobre fotografia leva sobreposição (`rgba(0,0,0,0.45)` ou mais) e confirma-se nos prints. Nunca transparência no texto.
 - **Assinaturas:** três a cinco decisões que tornam o estilo reconhecível, cada uma feita com peças do kit e widgets gratuitos do Elementor (em blocos, com as opções `css` das peças). Se uma assinatura precisar de widget pago, código colado à mão ou animação, não é assinatura: vai para "O que fica de fora".
-- **Sem animações de entrada.** Movimento só como resposta à pessoa (a cor do botão ao passar o rato, abrir uma pergunta). Ver "Com aviso".
+- **Animações de entrada só nos widgets**, nunca nas secções (containers), para o fundo nunca ficar invisível. Se o estilo as usar, escrever em que widgets entram e qual. Fora isso, movimento só como resposta à pessoa (a cor do botão ao passar o rato, abrir uma pergunta). Ver "Com aviso".
 - **Simplificar:** de uma referência complexa ficam as três ou quatro coisas que fazem a sensação. Rever o plano contra os sinais de página feita por IA do `principios.md` e trocar o que sairia igual para qualquer cliente.
 - **As fotografias decidem o estilo.** Um estilo de fotografia grande só funciona com fotografias boas do cliente (`clientes/<cliente>/imagens/` ou o site dele). Se não houver, dizer isso e propor uma versão em que a tipografia e o espaço fazem o trabalho.
 
@@ -89,7 +89,7 @@ As páginas com desenho do `/shopify-pagina` usam as peças dos blocos: as recei
 
 A pessoa decide; o Claude avisa uma vez, em linguagem simples, e segue.
 
-- **Animações de entrada:** há sites onde a biblioteca de animações não carrega e as secções ficam invisíveis. Se a pessoa as quiser, escrever no estilo em que secções entram e qual, e mais nada.
+- **Animações nas secções (containers):** não se põem, mesmo que a referência as tenha, porque há sites onde a biblioteca de animações não carrega e a secção fica invisível. Passam para os widgets dessa secção.
 - **Letras pagas da referência:** precisam de licença no site do cliente. Por defeito, a Google Font mais parecida.
 - **Widgets pagos** (Elementor Pro, addons): só se o site do cliente os tiver (`levantamento.md`), e a página deixa de abrir num site sem eles.
 - **Cores ou letras fora da marca:** dizer que o site passa a ter dois desenhos se o resto não mudar.

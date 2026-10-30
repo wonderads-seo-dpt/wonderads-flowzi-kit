@@ -64,7 +64,7 @@ Num WordPress sem Elementor, as páginas fazem-se em blocos do WordPress (`scrip
 5. **Só widgets gratuitos**, salvo indicação em contrário. Não criar dependências de licenças que o cliente pode não ter.
 6. **Texto alternativo em todas as imagens**, escrito para quem não vê a imagem, não para o motor de busca.
 7. **Um só `h1` por página.** Hierarquia de títulos sem saltos.
-8. **Sem animações de entrada.** Há sites onde a biblioteca de animações não carrega e as secções ficam invisíveis.
+8. **Animações de entrada permitidas, só nos widgets.** Nunca nas secções (containers), para o fundo nunca ficar invisível. Antes de dar por feito, ver no navegador, também em telemóvel, que tudo aparece ao rolar.
 9. **Os títulos são um sistema.** Um estilo por nível (h1, h2, h3, etiqueta), em `titulos` no `marca.json` do cliente. Pedir para mudar um título é mudar todos os do mesmo nível: grava-se lá e volta-se a gravar a página: uma feita pelo kit, com o mesmo ficheiro e o mesmo comando; uma página Elementor que já existia, com `node scripts/titulos.mjs <página>`, que faz uma cópia em rascunho (`.claude/skills/design/titulos.md`). As outras páginas do cliente só mudam quando se voltarem a gravar: perguntar se se gravam. Nunca título a título.
 10. **Cada correcção fica anotada.** Quando a pessoa corrigir algo que fizeste (cor, palavra, estrutura, tom), acrescenta uma linha a `clientes/<cliente>/notas/correcoes.md`: data, skill, o que estava e o que ficou. Se a mesma correcção já lá estiver, diz: "Já é a segunda vez que corrigimos isto. Queres que passe a regra? (`/aprender`)".
 

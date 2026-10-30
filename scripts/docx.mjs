@@ -2,7 +2,7 @@
 // Abre no Word, no Google Docs e no LibreOffice. Os títulos usam os estilos do próprio Word (Título 1, 2, 3...), para
 // o Word e o Google Docs mostrarem o índice do documento e o cliente ver a hierarquia da página.
 // Um documento é { titulo, blocos }, e cada bloco { tipo, partes }:
-//   tipo: 'titulo' (com nivel 1 a 6) · 'paragrafo' · 'item' (de lista: nivel 0 a 2, ordenada, lista) · 'nota' · 'linha'
+//   tipo: 'titulo' (com nivel 1 a 6) · 'paragrafo' · 'item' (de lista: nivel 0 a 2, ordenada, lista) · 'nota' · 'etiqueta' · 'linha'
 //   partes: [{ texto, negrito, italico, ligacao }] ou { quebra: true }
 // blocosDeHtml(html) transforma HTML (Elementor, blocos do WordPress, Shopify) em blocos.
 import { deflateRawSync } from 'node:zlib';
@@ -20,6 +20,9 @@ const NS = {
   dcterms: 'http://purl.org/dc/terms/',
   xsi: 'http://www.w3.org/2001/XMLSchema-instance',
   word: 'http://schemas.microsoft.com/office/word',
+  wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+  a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+  pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture',
 };
 const REL = (t) => `http://schemas.openxmlformats.org/officeDocument/2006/relationships/${t}`;
 const OFFICE = 'application/vnd.openxmlformats-officedocument.wordprocessingml';
@@ -93,23 +96,27 @@ const esc = (t) => String(t ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
 
+// Cores da Wonder Ads nas entregas ao cliente: azul nos títulos, roxo nos subtítulos e nas listas, magenta nos traços.
+export const COR = { azul: '343ED7', roxo: '783DF5', magenta: 'C535C9', texto: '1F2230', cinza: '5C6070' };
 const tamanhos = [0, 36, 30, 26, 24, 22, 22];
+const corTitulo = (n) => (n < 3 ? COR.azul : COR.roxo);
 const estiloTitulo = (n) => `<w:style w:type="paragraph" w:styleId="Heading${n}"><w:name w:val="heading ${n}"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:uiPriority w:val="9"/><w:qFormat/>`
-  + `<w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="${n < 3 ? 360 : 240}" w:after="120"/><w:outlineLvl w:val="${n - 1}"/></w:pPr>`
-  + `<w:rPr><w:b/><w:bCs/>${n > 4 ? '<w:i/><w:iCs/>' : ''}<w:sz w:val="${tamanhos[n]}"/><w:szCs w:val="${tamanhos[n]}"/></w:rPr></w:style>`;
+  + `<w:pPr><w:keepNext/><w:keepLines/>${n === 2 ? `<w:pBdr><w:bottom w:val="single" w:sz="8" w:space="6" w:color="${COR.magenta}"/></w:pBdr>` : ''}<w:spacing w:before="${n < 3 ? 360 : 240}" w:after="120"/><w:outlineLvl w:val="${n - 1}"/></w:pPr>`
+  + `<w:rPr><w:b/><w:bCs/>${n > 4 ? '<w:i/><w:iCs/>' : ''}<w:color w:val="${corTitulo(n)}"/><w:sz w:val="${tamanhos[n]}"/><w:szCs w:val="${tamanhos[n]}"/></w:rPr></w:style>`;
 
 const ESTILOS = `${XML}<w:styles xmlns:w="${NS.w}">`
-  + '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="pt-PT" w:eastAsia="pt-PT" w:bidi="ar-SA"/></w:rPr></w:rPrDefault>'
+  + `<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/><w:color w:val="${COR.texto}"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="pt-PT" w:eastAsia="pt-PT" w:bidi="ar-SA"/></w:rPr></w:rPrDefault>`
   + '<w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'
   + '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/></w:rPr></w:style>'
   + [1, 2, 3, 4, 5, 6].map(estiloTitulo).join('')
   + '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="34"/><w:qFormat/><w:pPr><w:spacing w:after="60"/><w:ind w:left="720"/><w:contextualSpacing/></w:pPr></w:style>'
-  + '<w:style w:type="paragraph" w:customStyle="1" w:styleId="Nota"><w:name w:val="Nota"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:shd w:val="clear" w:color="auto" w:fill="FFF4CC"/><w:spacing w:after="240"/></w:pPr><w:rPr><w:i/><w:iCs/></w:rPr></w:style>'
+  + `<w:style w:type="paragraph" w:customStyle="1" w:styleId="Nota"><w:name w:val="Nota"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:shd w:val="clear" w:color="auto" w:fill="F1F0FE"/><w:spacing w:after="240"/></w:pPr><w:rPr><w:i/><w:iCs/><w:color w:val="${COR.cinza}"/></w:rPr></w:style>`
+  + `<w:style w:type="paragraph" w:customStyle="1" w:styleId="Etiqueta"><w:name w:val="Etiqueta"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:after="60"/></w:pPr><w:rPr><w:b/><w:bCs/><w:caps/><w:color w:val="${COR.magenta}"/><w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr></w:style>`
   + '<w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont"><w:name w:val="Default Paragraph Font"/><w:uiPriority w:val="1"/><w:semiHidden/><w:unhideWhenUsed/></w:style>'
-  + '<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr></w:style>'
+  + `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="${COR.azul}"/><w:u w:val="single"/></w:rPr></w:style>`
   + '</w:styles>';
 
-const nivelLista = (i, formato, texto) => `<w:lvl w:ilvl="${i}"><w:start w:val="1"/><w:numFmt w:val="${formato}"/><w:lvlText w:val="${texto}"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="${720 * (i + 1)}" w:hanging="360"/></w:pPr></w:lvl>`;
+const nivelLista = (i, formato, texto) => `<w:lvl w:ilvl="${i}"><w:start w:val="1"/><w:numFmt w:val="${formato}"/><w:lvlText w:val="${texto}"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="${720 * (i + 1)}" w:hanging="360"/></w:pPr><w:rPr><w:color w:val="${COR.roxo}"/></w:rPr></w:lvl>`;
 const numeracao = (ordenadas) => `${XML}<w:numbering xmlns:w="${NS.w}">`
   + `<w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="hybridMultilevel"/>${nivelLista(0, 'bullet', '•')}${nivelLista(1, 'bullet', '◦')}${nivelLista(2, 'bullet', '▪')}</w:abstractNum>`
   + `<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>${nivelLista(0, 'decimal', '%1.')}${nivelLista(1, 'decimal', '%2.')}${nivelLista(2, 'decimal', '%3.')}</w:abstractNum>`
@@ -119,7 +126,15 @@ const numeracao = (ordenadas) => `${XML}<w:numbering xmlns:w="${NS.w}">`
   + ordenadas.map((id) => `<w:num w:numId="${id}"><w:abstractNumId w:val="1"/>${[0, 1, 2].map((i) => `<w:lvlOverride w:ilvl="${i}"><w:startOverride w:val="1"/></w:lvlOverride>`).join('')}</w:num>`).join('')
   + '</w:numbering>';
 
-export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando = new Date() }) {
+// Logótipo no topo: 4,9 x 1,8 cm, como no modelo de entrega da Wonder Ads.
+const LOGO_CX = 1866900;
+const LOGO_CY = 695325;
+const desenhoLogo = () => `<w:p><w:pPr><w:spacing w:after="160"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${LOGO_CX}" cy="${LOGO_CY}"/><wp:docPr id="1" name="Wonder Ads"/>`
+  + `<a:graphic><a:graphicData uri="${NS.pic}"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="logo.png"/><pic:cNvPicPr/></pic:nvPicPr>`
+  + `<pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${LOGO_CX}" cy="${LOGO_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+
+// logo: o PNG que vai no topo (Buffer), ou nada.
+export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando = new Date(), logo = null }) {
   const ligacoes = new Map();
   const ordenadas = new Map();
   const rel = (url) => {
@@ -128,15 +143,22 @@ export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando
   };
   const corrida = (p) => {
     if (p.quebra) return '<w:r><w:br/></w:r>';
-    const rPr = `${p.ligacao ? '<w:rStyle w:val="Hyperlink"/>' : ''}${p.negrito ? '<w:b/><w:bCs/>' : ''}${p.italico ? '<w:i/><w:iCs/>' : ''}`;
-    const r = `<w:r>${rPr ? `<w:rPr>${rPr}</w:rPr>` : ''}<w:t xml:space="preserve">${esc(p.texto)}</w:t></w:r>`;
+    const base = `${p.ligacao ? '<w:rStyle w:val="Hyperlink"/>' : ''}${p.negrito ? '<w:b/><w:bCs/>' : ''}${p.italico ? '<w:i/><w:iCs/>' : ''}`;
+    // O que está entre [ ] (por confirmar) fica a amarelo, para saltar à vista na validação. As etiquetas do próprio
+    // documento ([Botão], [Imagem], [Incorporado]) não estão por confirmar.
+    const r = String(p.texto ?? '').split(/(\[[^\]]*\])/).filter(Boolean).map((pedaco) => {
+      const porConfirmar = /^\[.*\]$/.test(pedaco) && !/^\[(Botão|Imagem|Incorporado)\]$/.test(pedaco);
+      const rPr = `${base}${porConfirmar ? '<w:highlight w:val="yellow"/>' : ''}`;
+      return `<w:r>${rPr ? `<w:rPr>${rPr}</w:rPr>` : ''}<w:t xml:space="preserve">${esc(pedaco)}</w:t></w:r>`;
+    }).join('');
     return p.ligacao ? `<w:hyperlink r:id="${rel(p.ligacao)}" w:history="1">${r}</w:hyperlink>` : r;
   };
   const paragrafo = (b) => {
     let pPr = '';
     if (b.tipo === 'titulo') pPr = `<w:pStyle w:val="Heading${Math.min(6, Math.max(1, b.nivel || 1))}"/>`;
     else if (b.tipo === 'nota') pPr = '<w:pStyle w:val="Nota"/>';
-    else if (b.tipo === 'linha') pPr = '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="999999"/></w:pBdr>';
+    else if (b.tipo === 'etiqueta') pPr = '<w:pStyle w:val="Etiqueta"/>';
+    else if (b.tipo === 'linha') pPr = `<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="${COR.magenta}"/></w:pBdr>`;
     else if (b.tipo === 'item') {
       let numId = 1;
       if (b.ordenada) {
@@ -147,14 +169,15 @@ export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando
     }
     return `<w:p>${pPr ? `<w:pPr>${pPr}</w:pPr>` : ''}${(b.partes || []).map(corrida).join('')}</w:p>`;
   };
-  const corpo = blocos.map(paragrafo).join('') || '<w:p/>';
-  const documento = `${XML}<w:document xmlns:w="${NS.w}" xmlns:r="${NS.r}"><w:body>${corpo}`
+  const corpo = `${logo ? desenhoLogo() : ''}${blocos.map(paragrafo).join('')}` || '<w:p/>';
+  const documento = `${XML}<w:document xmlns:w="${NS.w}" xmlns:r="${NS.r}" xmlns:wp="${NS.wp}" xmlns:a="${NS.a}" xmlns:pic="${NS.pic}"><w:body>${corpo}`
     + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr>'
     + '</w:body></w:document>';
   const relacoes = `${XML}<Relationships xmlns="${NS.rels}">`
     + `<Relationship Id="rId1" Type="${REL('styles')}" Target="styles.xml"/>`
     + `<Relationship Id="rId2" Type="${REL('numbering')}" Target="numbering.xml"/>`
     + `<Relationship Id="rId3" Type="${REL('settings')}" Target="settings.xml"/>`
+    + (logo ? `<Relationship Id="rIdLogo" Type="${REL('image')}" Target="media/logo.png"/>` : '')
     + [...ligacoes].map(([url, id]) => `<Relationship Id="${id}" Type="${REL('hyperlink')}" Target="${esc(url)}" TargetMode="External"/>`).join('')
     + '</Relationships>';
   const data = quando.toISOString().replace(/\.\d+Z$/, 'Z');
@@ -162,6 +185,7 @@ export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando
     { nome: '[Content_Types].xml', dados: `${XML}<Types xmlns="${NS.tipos}">`
       + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
       + '<Default Extension="xml" ContentType="application/xml"/>'
+      + '<Default Extension="png" ContentType="image/png"/>'
       + `<Override PartName="/word/document.xml" ContentType="${OFFICE}.document.main+xml"/>`
       + `<Override PartName="/word/styles.xml" ContentType="${OFFICE}.styles+xml"/>`
       + `<Override PartName="/word/numbering.xml" ContentType="${OFFICE}.numbering+xml"/>`
@@ -183,6 +207,7 @@ export function docx({ titulo = '', blocos = [], autor = 'Flowzi WP Kit', quando
     { nome: 'word/settings.xml', dados: `${XML}<w:settings xmlns:w="${NS.w}"><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/>`
       + `<w:compat><w:compatSetting w:name="compatibilityMode" w:uri="${NS.word}" w:val="15"/></w:compat></w:settings>` },
     { nome: 'word/_rels/document.xml.rels', dados: relacoes },
+    ...(logo ? [{ nome: 'word/media/logo.png', dados: logo }] : []),
   ], quando);
 }
 

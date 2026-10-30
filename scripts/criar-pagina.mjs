@@ -31,7 +31,8 @@ const corpo = {
     _elementor_edit_mode: 'builder',
     _elementor_template_type: artigo ? 'wp-post' : 'wp-page',
     _elementor_data: JSON.stringify(p.elementos),
-    _elementor_page_settings: { hide_title: 'yes' },
+    // definicoes: opções de página do tema (estilo do corpo, cabeçalho, rodapé...), para não se perderem a cada gravação.
+    _elementor_page_settings: { hide_title: 'yes', ...(p.definicoes || {}) },
   },
 };
 if (p.slug) corpo.slug = p.slug;

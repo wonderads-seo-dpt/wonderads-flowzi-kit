@@ -49,7 +49,7 @@ Regras que não se negoceiam:
 - Só widgets reais e gratuitos. Nunca HTML despejado num widget de código.
 - Títulos como sistema (`.claude/skills/design/titulos.md`): nunca estilizados um a um. Se a pessoa pedir para mudar o aspecto de um título, é para todos do mesmo nível: confirmar numa linha, gravar em `titulos` no `marca.json` e voltar a gravar a página.
 - Máximo de três níveis de containers.
-- Sem animações de entrada: há sites onde a biblioteca de animações não carrega e as secções ficam invisíveis.
+- Animações de entrada só nos widgets, nunca nas secções (containers). Ver na pré-visualização, também em telemóvel, que tudo aparece ao rolar.
 - Português de Portugal, com os números e as datas da secção 3 do `CLAUDE.md`.
 
 ## Site sem Elementor (blocos do WordPress)
@@ -70,7 +70,7 @@ Correr `node scripts/criar-pagina.mjs clientes/<cliente>/paginas/<slug>.mjs`. O 
 
 Para refazer depois de um reparo, editar o mesmo ficheiro e correr o mesmo comando: o script lembra-se do rascunho que criou nesse site (em `<slug>.wp.json`, ao lado) e actualiza-o, guardando o estado anterior em `clientes/<cliente>/copias/`. Se o site foi reposto (o treino volta limpo), cria um rascunho novo.
 
-O script faz também o documento para o cliente validar o texto e mostra o caminho (`clientes/<cliente>/validacao/…docx`). Na entrega, dizer onde está e perguntar se é para ir para o Drive: `node scripts/documento.mjs <id> --drive`. Se o script avisar que o documento não se fez, a página está gravada na mesma: repetir com `node scripts/documento.mjs <id>`.
+O script faz também o documento para o cliente validar o texto e mostra o caminho (`clientes/<cliente>/validacao/…docx`). Na entrega, dizer onde está e perguntar se é para ir para o Drive: `node scripts/documento.mjs <id> --drive`. Vai para a pasta do cliente no Drive (a do `drive.json` dele, ou uma pasta com o nome dele); sem ela, para "Validação de textos/<cliente>". Se o script avisar que o documento não se fez, a página está gravada na mesma: repetir com `node scripts/documento.mjs <id>`.
 
 ## Entregar
 
@@ -80,7 +80,8 @@ Dizer, por esta ordem:
 2. Quantas secções e elementos foram criados.
 3. Um título SEO (50 a 60 caracteres) e uma meta description (140 a 160), já contados, para a pessoa colar no plugin de SEO do site (Yoast ou Rank Math).
 4. O que ficou `[por confirmar]` e precisa de olho humano.
-5. Para ver a pré-visualização é preciso ter sessão iniciada no wp-admin desse site, no mesmo browser.
-6. Se a página foi **alterada** (não criada) e o estilo parecer antigo: abrir no editor do Elementor e guardar como rascunho, na seta ao lado do botão verde. Nunca o botão verde "Publicar".
+5. O caminho do .docx de validação, para enviar ao cliente.
+6. Para ver a pré-visualização é preciso ter sessão iniciada no wp-admin desse site, no mesmo browser.
+7. Se a página foi **alterada** (não criada) e o estilo parecer antigo: abrir no editor do Elementor e guardar como rascunho, na seta ao lado do botão verde. Nunca o botão verde "Publicar".
 
 Depois, sugerir `/wp-rever <id>`.

@@ -1,7 +1,8 @@
 // Faz um documento do Word só com o texto de uma página ou artigo já gravado, para o cliente validar: comentar ou
 // sugerir alterações. Fica em clientes/<cliente>/validacao/<slug>-<número>-<AAAA-MM-DD>.docx. Só lê o WordPress.
-// Com --drive, copia-o para o Google Drive para computador, em "Validação de textos/<cliente>/", sem escrever por
-// cima de uma cópia que já lá esteja (essa pode ter os comentários do cliente).
+// Com --drive, copia-o para o Google Drive para computador, para a pasta do cliente (a do drive.json dele, ou uma pasta
+// com o nome dele) ou, sem ela, para "Validação de textos/<cliente>/", sem escrever por cima de uma cópia que já lá
+// esteja (essa pode ter os comentários do cliente).
 // Com um .docx em vez da página (por exemplo, o de uma página da Shopify), só o copia para o Drive.
 // uso: node scripts/documento.mjs <id|endereço> [--drive ["pasta do Google Drive"]]
 //      node scripts/documento.mjs clientes/<cliente>/validacao/<ficheiro>.docx --drive

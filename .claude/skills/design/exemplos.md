@@ -78,7 +78,7 @@ Principal: cheio, claro sobre escuro (ou escuro sobre claro), raio 4, ao passar 
 
 ## O que fica de fora
 
-Vídeo no herói (pesa e o Elementor gratuito não o garante no telemóvel), animações de entrada (regra do kit), a letra Porsche Next (exclusiva), menus e configuradores animados, mais de um botão principal por secção.
+Vídeo no herói (pesa e o Elementor gratuito não o garante no telemóvel), animações de entrada nas secções (regra do kit: só nos widgets), a letra Porsche Next (exclusiva), menus e configuradores animados, mais de um botão principal por secção.
 
 ---
 

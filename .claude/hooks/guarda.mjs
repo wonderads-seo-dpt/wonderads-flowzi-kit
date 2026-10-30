@@ -34,6 +34,10 @@ const SKILLS_DO_KIT = [
   'wp-ligar', 'wp-briefing', 'wp-landing', 'wp-seccao', 'wp-artigo', 'wp-rever', 'wp-design', 'design', 'wp-replicar',
   'shopify-ligar', 'shopify-pagina', 'shopify-artigo', 'shopify-publicar',
   'criar-skill', 'aprender', 'seo',
+  // Skills de design do taste-skill, que passaram a fazer parte do kit.
+  'brandkit', 'design-taste-frontend', 'design-taste-frontend-v1', 'design-taste-frontend-v2-experimental',
+  'full-output-enforcement', 'gpt-taste', 'high-end-visual-design', 'image-to-code', 'imagegen-frontend-mobile',
+  'imagegen-frontend-web', 'industrial-brutalist-ui', 'minimalist-ui', 'redesign-existing-projects', 'stitch-design-taste',
 ];
 const doKit = (caminho) => {
   const rel = relative(raiz, resolve(raiz, caminho)).split(sep).join('/');
@@ -106,7 +110,8 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
   if (accaoPerigosa.test(limpo) || cli.test(limpo) || cli.test(c.replace(/[`'"^]/g, ''))) {
     bloquear('o Shopify CLI não se usa pelo Claude: publica e apaga temas. Na Shopify, o kit só grava páginas e artigos escondidos pelos scripts, e quem publica é uma pessoa, no painel.');
   }
-  if (/(?:^|[\s;&|(])(npx|npm|pnpm|yarn|bun|deno|python3?|py|perl|ruby|php|wget|curl|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)(?:\.exe|\.cmd)?(?=\s|$)/i.test(c)) {
+  // Outros programas (npx, npm, python, wget...) deixaram de perguntar (pedido da agência, 28/10/2026).
+  if (false && /(?:^|[\s;&|(])(npx|npm|pnpm|yarn|bun|deno|python3?|py|perl|ruby|php|wget|curl|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)(?:\.exe|\.cmd)?(?=\s|$)/i.test(c)) {
     avisos.push('este programa não faz parte do trabalho normal do kit; o WordPress fala-se pelos scripts, que só gravam rascunhos');
   }
   if (/(?:^|[\s;&|(])gh(?:\.exe)?(?=\s|$)/i.test(c)) {
@@ -143,11 +148,13 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
       : accao === 'esconder' ? 'isto ESCONDE na loja Shopify real uma página ou um artigo que está visível'
       : 'isto pode publicar, esconder ou apagar na loja Shopify real');
   }
-  if (reais.length && grava) avisos.push(`isto grava no SITE REAL do cliente (${reais.join(', ')}). Fica em rascunho (na Shopify, escondido): quem visita não o vê, mas aparece no painel do cliente`);
+  // Gravar rascunhos no site real deixou de perguntar (pedido da agência, 28/10/2026): os scripts continuam a só gravar rascunhos.
+  if (false && reais.length && grava) avisos.push(`isto grava no SITE REAL do cliente (${reais.join(', ')}). Fica em rascunho (na Shopify, escondido): quem visita não o vê, mas aparece no painel do cliente`);
   else if (reais.length && avisos.length) avisos.push(`atenção: o cliente está ligado ao SITE REAL (${reais.join(', ')})`);
   // O seccao.mjs e o titulos.mjs não estão no "ask" do settings.json, que ganharia ao "allow" do --listar e do --ver:
   // a pergunta ao gravar faz-se aqui, onde se distingue ler de gravar.
-  if (grava && !reais.length && /\b(seccao|titulos)\.mjs\b/i.test(c)) avisos.push('isto grava uma cópia em rascunho no WordPress do cliente');
+  // O seccao.mjs grava sem perguntar, como os outros scripts de rascunho (pedido da agência, 28/10/2026).
+  if (grava && !reais.length && /\btitulos\.mjs\b/i.test(c)) avisos.push('isto grava uma cópia em rascunho no WordPress do cliente');
   if (avisos.length) perguntar(`${avisos.join('; ')}. Confirmar só se for mesmo isto que se quer.`);
   process.exit(0);
 }
