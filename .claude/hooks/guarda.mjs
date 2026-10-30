@@ -65,9 +65,11 @@ if (['Read', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(ferramenta))
   const f = dados.file_path || dados.notebook_path || '';
   if (eEnv(f)) {
     if (ferramenta === 'Read') bloquear('o .env tem a password de aplicação do cliente e não se lê. A ligação grava-se com node scripts/ligacao.mjs, num terminal à parte.');
-    perguntar('isto altera a ligação do cliente (.env). O normal é a pessoa usar node scripts/ligacao.mjs num terminal à parte.');
+    // Sem perguntas (pedido da agência, 30/10/2026): o que era pergunta passa a bloqueio ou fica livre.
+    bloquear('o .env só se grava com node scripts/ligacao.mjs, pela pessoa, num terminal à parte.');
   }
-  if (ferramenta !== 'Read' && doKit(f)) perguntar(`${MUDAR_KIT}.`);
+  // Mexer no kit deixou de perguntar (pedido da agência, 30/10/2026).
+  if (false && ferramenta !== 'Read' && doKit(f)) perguntar(`${MUDAR_KIT}.`);
   process.exit(0);
 }
 
@@ -155,7 +157,9 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
   // a pergunta ao gravar faz-se aqui, onde se distingue ler de gravar.
   // O seccao.mjs grava sem perguntar, como os outros scripts de rascunho (pedido da agência, 28/10/2026).
   if (grava && !reais.length && /\btitulos\.mjs\b/i.test(c)) avisos.push('isto grava uma cópia em rascunho no WordPress do cliente');
-  if (avisos.length) perguntar(`${avisos.join('; ')}. Confirmar só se for mesmo isto que se quer.`);
+  // Só publicar, esconder ou apagar na loja Shopify pergunta; o resto passa sem pergunta (pedido da agência, 30/10/2026).
+  const naLoja = /shopify-publicar/i.test(semTruques) && !preVer.test(c);
+  if (naLoja && avisos.length) perguntar(`${avisos.join('; ')}. Confirmar só se for mesmo isto que se quer.`);
   process.exit(0);
 }
 
