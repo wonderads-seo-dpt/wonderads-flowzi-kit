@@ -40,7 +40,7 @@ export function nomeComercial(nome) {
 }
 
 export function criar(nome, comercial) {
-  if (!nomeValido(nome)) throw new Error('O nome do cliente vai em minúsculas, sem espaços nem acentos: clinica-sorriso, loja-norte.');
+  if (!nomeValido(nome)) throw new Error('O nome do cliente vai em minúsculas, sem espaços nem acentos: clinica-fa, mimus.');
   const pasta = pastaDe(nome);
   if (existsSync(pasta)) throw new Error(`O cliente "${nome}" já existe.`);
   copiar(`${raiz}/scripts/modelo`, pasta);

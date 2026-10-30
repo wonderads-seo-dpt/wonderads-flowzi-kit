@@ -2,9 +2,8 @@
 // A tranca: só operações desta lista, tudo gravado escondido (isPublished: false), e só se altera o que
 // ainda está escondido. Publicar, esconder e apagar fazem-se à parte, com aviso (mudarEstado). A Shopify não tem permissões "só rascunho", por isso a regra vive aqui.
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, relative, isAbsolute, basename, join } from 'node:path';
+import { resolve, relative, isAbsolute, basename } from 'node:path';
 import { realpathSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { activo, pastaDe, raiz } from './clientes.mjs';
 
 export const VERSAO_API = '2026-10';
@@ -228,86 +227,19 @@ export async function mudarEstado(tipo, id, accao) {
 // Imagens: um ficheiro do cliente sobe para a Shopify (Ficheiros); um endereço público vai directo.
 // Devolve o endereço no CDN da loja, que é o que entra nas páginas e nos artigos.
 const TIPOS = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.gif': 'image/gif' };
-// Subir imagens precisa de write_files (ou write_images, ou write_themes, que também o permitem). Confirma-se antes do
-// primeiro envio, para a página não ficar a meio e o erro dizer o que fazer.
-let dadosLoja = null;
-const daLoja = async () => (dadosLoja ??= await ler('loja'));
-async function exigirFicheiros() {
-  const scopes = (await daLoja()).currentAppInstallation?.accessScopes?.map((s) => s.handle) || [];
-  if (!scopes.some((s) => ['write_files', 'write_images', 'write_themes'].includes(s))) {
-    throw new Error('A app da loja não tem a permissão write_files, e sem ela as imagens não sobem para a loja. O dono da loja abre a app no Dev Dashboard da Shopify, junta write_files às permissões (Access scopes), carrega em Release para libertar a versão nova e volta a instalar a app na loja. As imagens que já estão na loja (cdn.shopify.com) usam-se sem esta permissão.');
-  }
-}
-// O CDN da Shopify (cdn.shopify.com) ou o da própria loja (/cdn/shop/ no domínio dela): a imagem já lá está.
-async function jaNaLoja(url) {
-  if (url.hostname === 'cdn.shopify.com') return true;
-  if (!url.pathname.startsWith('/cdn/shop/')) return false;
-  const d = (await daLoja()).shop || {};
-  const sem = (h) => String(h || '').toLowerCase().replace(/^www\./, '');
-  let principal = '';
-  try { principal = new URL(d.primaryDomain?.url || '').hostname; } catch {}
-  return [loja, d.myshopifyDomain, principal].filter(Boolean).map(sem).includes(sem(url.hostname));
-}
-
-// O endereço com que uma imagem entra na loja. imagens/foto.jpg (na pasta do cliente) sobe; uma imagem que já está no CDN
-// da loja usa-se como está; outro endereço https sobe para os Ficheiros da loja. A Pixabay nunca se liga de fora:
-// o ficheiro descarrega-se para imagens/ e sobe.
-export async function imagemNaLoja(origem, alt) {
-  // //cdn.shopify.com/... (sem https:) é como a Shopify escreve os endereços no código das páginas.
-  const o = String(origem || '').trim().replace(/^\/\//, 'https://');
-  if (/^[a-z][a-z0-9+.-]*:/i.test(o)) {
-    let url;
-    try { url = new URL(o); } catch { throw new Error(`Endereço de imagem inválido: ${o}`); }
-    if (/(^|\.)pixabay\.com$/i.test(url.hostname)) {
-      throw new Error(`As fotografias da Pixabay não se ligam ao site da Pixabay (${o}). Descarregar a escolhida com node scripts/pixabay.mjs descarregar <número>, que a põe em imagens/, e usar esse ficheiro: sobe para a loja ao gravar.`);
-    }
-    if (url.protocol !== 'https:') throw new Error(`Imagem recusada: ${o}. Só ficheiros da pasta do cliente (imagens/...) ou endereços https.`);
-    if (await jaNaLoja(url)) return url.href;
-    return enviarImagem(url.href, alt);
-  }
-  return enviarImagem(join(pasta, o), alt);
-}
-
-// O que já subiu para cada loja: o sha256 de cada ficheiro (ou o endereço de fora) e o ficheiro com que ficou na Shopify,
-// em imagens/.shopify-<loja>.json. Voltar a gravar uma página não sobe outra vez as mesmas imagens.
-function imagensSubidas() {
-  const f = join(pasta, 'imagens', `.shopify-${loja.replace(/[^a-z0-9.-]/gi, '-')}.json`);
-  let c = {};
-  try { c = JSON.parse(readFileSync(f, 'utf8')); } catch {}
-  return {
-    c,
-    guardar(chave, v) {
-      c[chave] = v;
-      mkdirSync(join(pasta, 'imagens'), { recursive: true });
-      writeFileSync(f, JSON.stringify(c, null, 2) + '\n');
-    },
-  };
-}
-
 export async function enviarImagem(origem, alt) {
   if (!alt) throw new Error(`${origem}: falta o texto alternativo.`);
-  if (/^https?:\/\/([^/]*\.)?pixabay\.com[/:]/i.test(origem)) throw new Error(`As fotografias da Pixabay não se ligam ao site da Pixabay (${origem}): descarregar com node scripts/pixabay.mjs descarregar <número> e usar o ficheiro de imagens/.`);
-  await exigirFicheiros();
-  const local = !/^https:\/\//.test(origem);
-  const f = local ? ficheiroDoCliente(origem) : '';
-  const ext = f.toLowerCase().match(/\.[a-z]+$/)?.[0] || '';
-  if (local && !TIPOS[ext]) throw new Error(`${basename(f)}: só se enviam imagens jpg, png, webp ou gif.`);
-  const conteudo = local ? readFileSync(f) : null;
-  const chave = local ? `sha256:${createHash('sha256').update(conteudo).digest('hex')}` : origem;
-  const subidas = imagensSubidas();
-  // Se o ficheiro ainda estiver na loja, usa-se; se alguém o apagou nos Ficheiros, sobe outra vez.
-  if (subidas.c[chave]?.id) {
-    const n = (await ler('ficheiro', { id: subidas.c[chave].id })).node;
-    if (n?.fileStatus === 'READY' && n.image?.url) return n.image.url;
-  }
   let fonte = origem;
-  if (local) {
+  if (!/^https:\/\//.test(origem)) {
+    const f = ficheiroDoCliente(origem);
+    const ext = f.toLowerCase().match(/\.[a-z]+$/)?.[0] || '';
+    if (!TIPOS[ext]) throw new Error(`${basename(f)}: só se enviam imagens jpg, png, webp ou gif.`);
     const alvo = (await gravar('stagedUploadsCreate', {
       input: [{ resource: 'IMAGE', filename: basename(f), mimeType: TIPOS[ext], httpMethod: 'PUT' }],
     })).stagedTargets[0];
     // Nas imagens, os parâmetros do envio vão como cabeçalhos de um PUT (guia de media da Shopify).
     const cabecalhos = Object.fromEntries(alvo.parameters.map((p) => [p.name, p.value]));
-    const r = await fetch(alvo.url, { method: 'PUT', headers: cabecalhos, body: conteudo, redirect: 'manual' });
+    const r = await fetch(alvo.url, { method: 'PUT', headers: cabecalhos, body: readFileSync(f), redirect: 'manual' });
     if (!r.ok) throw new Error(`O envio de ${basename(f)} para a Shopify falhou (${r.status}).`);
     fonte = alvo.resourceUrl;
   }
@@ -315,10 +247,7 @@ export async function enviarImagem(origem, alt) {
   // A Shopify processa a imagem uns segundos antes de dar o endereço final.
   for (let i = 0; i < 20; i++) {
     const n = (await ler('ficheiro', { id: criado.id })).node;
-    if (n?.fileStatus === 'READY' && n.image?.url) {
-      subidas.guardar(chave, { id: criado.id, url: n.image.url });
-      return n.image.url;
-    }
+    if (n?.fileStatus === 'READY' && n.image?.url) return n.image.url;
     if (n?.fileStatus === 'FAILED') throw new Error(`A Shopify não aceitou a imagem ${basename(origem)}.`);
     await new Promise((ok) => setTimeout(ok, 1500));
   }

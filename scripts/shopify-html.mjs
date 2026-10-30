@@ -1,10 +1,9 @@
 // O corpo das páginas e dos artigos na Shopify é HTML. Escreve-se em blocos, como os artigos do WordPress do kit,
-// e este módulo transforma-os: texto escapado, imagens na loja e sempre com texto alternativo.
-// (As páginas com desenho escrevem-se com as peças de scripts/shopify-desenho.mjs.)
+// e este módulo transforma-os: texto escapado, imagens enviadas para a loja e sempre com texto alternativo.
 // Blocos: ['h2', texto] · ['h3', texto] · ['p', texto] · ['lista', [itens]] · ['imagem', { ficheiro | url, alt }]
 //         · ['botao', { texto, url }] · ['citacao', texto]
 import { join } from 'node:path';
-import { enviarImagem, imagemNaLoja, pasta } from './shopify.mjs';
+import { enviarImagem, pasta } from './shopify.mjs';
 
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 // O texto pode trazer <strong>, <em> e <a href="...">; tudo o resto é escapado.
@@ -43,11 +42,10 @@ export async function html(blocos = [], perguntas = []) {
   return partes.join('\n');
 }
 
-// Um ficheiro da pasta do cliente (por exemplo imagens/sorriso.jpg) ou um endereço https. Devolve o endereço no CDN da loja;
-// uma imagem que já lá está (cdn.shopify.com) usa-se sem subir.
+// Um ficheiro da pasta do cliente (por exemplo imagens/sorriso.jpg) ou um endereço https. Devolve o endereço no CDN da loja.
 export async function imagem(valor) {
   if (!valor?.alt) throw new Error(`A imagem ${valor?.ficheiro || valor?.url || ''} precisa de texto alternativo (alt).`);
-  if (valor.url) return imagemNaLoja(valor.url, valor.alt);
+  if (valor.url) return enviarImagem(valor.url, valor.alt);
   if (valor.ficheiro) return enviarImagem(join(pasta, valor.ficheiro), valor.alt);
   throw new Error('Uma imagem precisa de ficheiro (na pasta do cliente) ou de url.');
 }

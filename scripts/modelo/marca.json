@@ -7,13 +7,5 @@
     "texto_sobre_acento": "#04231F",
     "claro": "#F4F7FA"
   },
-  "tipografia": {
-    "titulos": "Inter",
-    "corpo": "Inter"
-  },
-  "titulos": {
-    "h1": {
-      "tamanho": 52
-    }
-  }
+  "tipografia": { "titulos": "Inter", "corpo": "Inter" }
 }

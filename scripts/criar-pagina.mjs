@@ -2,10 +2,9 @@
 // Com tipo: 'artigo' no ficheiro, cria um artigo do blogue em Elementor, como os blogues feitos em Elementor.
 // Voltar a correr o mesmo ficheiro actualiza o rascunho que ele criou nesse site (o número fica em <ficheiro>.wp.json).
 // Com um número no fim, actualiza essa página, mas só se continuar em rascunho e for a mesma página.
-// Depois de gravar, faz o documento para o cliente validar o texto em clientes/<cliente>/validacao/ (documento.mjs).
 // uso: node scripts/criar-pagina.mjs clientes/<cliente>/paginas/<slug>.mjs
 import { pathToFileURL } from 'node:url';
-import { wp, exigirLigacao, paginaEmEdicao, guardarCopia, exigirRascunho, contar, ligacoes, ficheiroDoCliente, registo, site, cliente } from './wp.mjs';
+import { wp, exigirLigacao, paginaEmEdicao, guardarCopia, exigirRascunho, contar, ligacoes, ficheiroDoCliente, registo } from './wp.mjs';
 
 exigirLigacao();
 const ficheiro = process.argv[2];
@@ -31,7 +30,8 @@ const corpo = {
     _elementor_edit_mode: 'builder',
     _elementor_template_type: artigo ? 'wp-post' : 'wp-page',
     _elementor_data: JSON.stringify(p.elementos),
-    _elementor_page_settings: { hide_title: 'yes' },
+    // definicoes: opções de página do tema (estilo do corpo, cabeçalho, rodapé...), para não se perderem a cada gravação.
+    _elementor_page_settings: { hide_title: 'yes', ...(p.definicoes || {}) },
   },
 };
 if (p.slug) corpo.slug = p.slug;
@@ -68,20 +68,10 @@ if (pagina.status !== 'draft') {
   console.error(`\n  ATENÇÃO: a página ${pagina.id} ficou em "${pagina.status}". Passar a rascunho no painel e avisar.\n`);
   process.exit(1);
 }
-const salvo = await wp(`wp/v2/${rota}/${pagina.id}?context=edit`);
-const gravado = salvo.meta?._elementor_data;
+const gravado = (await wp(`wp/v2/${rota}/${pagina.id}?context=edit`)).meta?._elementor_data;
 if (!gravado || gravado.length < 10) {
   console.error(`\n  A página ${pagina.id} foi criada mas o _elementor_data não ficou gravado. O site não aceita esta escrita.\n`);
   process.exit(1);
-}
-
-// O documento para o cliente validar o texto. Se falhar, a página já está gravada: só se avisa.
-let documento;
-try {
-  const { documentoDePagina } = await import('./validacao.mjs');
-  documento = `  documento       ${documentoDePagina(salvo, { site, cliente, seo: p.seo }).relativo} (para o cliente validar o texto)`;
-} catch (e) {
-  documento = `  Aviso: a página ficou gravada, mas o documento para o cliente validar não se fez (${e.message}).\n  Repetir com node scripts/documento.mjs ${pagina.id}`;
 }
 
 const l = ligacoes(pagina.id, artigo);
@@ -93,7 +83,6 @@ console.log(`
 
   editar          ${l.editar}
   pré-visualizar  ${l.previsualizar}
-${documento}
 `);
 if (alvo) {
   console.log(`  Página alterada: se a pré-visualização mostrar o estilo antigo, abrir o editor do Elementor

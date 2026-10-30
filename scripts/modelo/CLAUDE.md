@@ -28,7 +28,6 @@ Regras deste cliente. Valem por cima das gerais do `CLAUDE.md` da raiz, nunca co
 | Destaque (ícones e números, opcional) | `[#hex, se o acento não tiver contraste]` |
 | Tipo de letra dos títulos | `[nome]` |
 | Tipo de letra do corpo | `[nome]` |
-| Estilo dos títulos (h1, h2, h3, rótulo) | `"titulos"` no `marca.json`, se houver (gravado pelo `/design`) |
 
 **Tom de voz.** `[duas ou três linhas sobre como esta marca fala, com um exemplo de frase que soa a eles e um exemplo de frase que não soa]`
 

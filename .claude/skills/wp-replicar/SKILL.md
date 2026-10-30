@@ -33,21 +33,21 @@ Ler `.claude/skills/wp-design/principios.md`. Mostrar à pessoa uma tabela, uma 
 
 | # | Na referência | No kit | Conteúdo do cliente |
 |---|---|---|---|
-| 1 | Herói com foto a toda a largura, título branco grande ao centro, 2 botões | `seccao` com `imagemFundo`, `sobreposicao`, `alturaMinima: 640`; `titulo h1`, com o h1 de `titulos` a 72 px e peso 300; `botao` + `botao` com `contorno` | Promessa da página; foto da clínica (`imagens/`) |
+| 1 | Herói com foto a toda a largura, título branco grande ao centro, 2 botões | `seccao` com `imagemFundo`, `sobreposicao`, `alturaMinima: 640`; `titulo h1` 72 px peso 300; `botao` + `botao` com `contorno` | Promessa da página; foto da clínica (`imagens/`) |
 
-Mais as medidas que se vão usar: largura do conteúdo, tamanhos de letra, raio dos botões, espaço entre secções, cores. Os títulos nunca vão título a título: seguem `titulos` no `marca.json` (`.claude/skills/design/titulos.md`). Por defeito (letras do cliente, ou um estilo aprovado), ficam os `titulos` que o cliente já tem; se ainda não os tiver, propõem-se a partir da marca ou do estilo. Só se a pessoa escolheu no passo 1 também as letras da referência se propõem os títulos dela (h1, h2, h3, rótulo, palavras realçadas), com o aviso de que passam a valer para todas as páginas deste cliente, e só se gravam com o "sim". Juntar ou tirar secções que não fazem sentido para o cliente, e dizer porquê. Esperar pelo "sim" da pessoa.
+Mais as medidas que se vão usar: largura do conteúdo, tamanhos de letra, raio dos botões, espaço entre secções, cores. Juntar ou tirar secções que não fazem sentido para o cliente, e dizer porquê. Esperar pelo "sim" da pessoa.
 
 ## 4 · Construir
 
 Escrever `clientes/<cliente>/paginas/<slug>.mjs` com as peças de `scripts/elementor.mjs` (num site sem Elementor, as de `scripts/blocos.mjs`, como explica o `/wp-landing`), como no `/wp-landing` (copiar o `import` do `exemplo-implantes.mjs`). Para chegar ao desenho da referência:
 
 - `seccao(..., { largura, imagemFundo, sobreposicao, alturaMinima, fundo, topo, base, alinhar })`;
-- `titulo(...)` só com `cor` (sobre fundo escuro) e `alinhar`: tamanho, peso, letra, espaçamento e maiúsculas vêm de `titulos` no `marca.json`; `rotulo(...)` para as etiquetas por cima dos títulos; `texto(..., { tamanho, cor, alinhar })`;
+- `titulo(..., { tamanho, peso, cor, alinhar })`, `texto(..., { tamanho, cor, alinhar })`;
 - `botao(..., { raio, contorno, fundo, cor, invertido })`;
 - `cartao(..., { raio, sombra, borda, fundo, largura })`, `imagem(..., { raio, largura })`, `caixaIcone(..., { posicao, alinhar })`;
-- `{ extra: { ... } }` em qualquer peça, para uma definição do Elementor que as opções não cubram (alinhamentos no telemóvel, por exemplo). Num título, só para uma excepção que a pessoa pediu. Só definições de widgets gratuitos. Em blocos, o mesmo com `{ css: { 'letter-spacing': '-1px' }, cssTelemovel: { ... } }`.
+- `{ extra: { ... } }` em qualquer peça, para uma definição do Elementor que as opções não cubram (espaçamento entre letras, maiúsculas, alinhamentos no telemóvel). Só definições de widgets gratuitos.
 
-Regras do kit que se mantêm: widgets reais (nunca HTML num widget de código), no máximo três níveis de containers, um só h1, texto alternativo em todas as imagens, português de Portugal. Widgets pagos e animações, só como em "Com aviso".
+Regras do kit que se mantêm: widgets reais (nunca HTML num widget de código), no máximo três níveis de containers, um só h1, texto alternativo em todas as imagens, português de Portugal, animações de entrada só nos widgets e nunca nas secções (containers). Widgets pagos, só como em "Com aviso".
 
 **Imagens:** por defeito, as do cliente (`clientes/<cliente>/imagens/`, ou endereços do site dele). As da referência só com aviso (ver abaixo). Se não houver uma imagem aprovada, deixar a secção sem imagem e dizer à pessoa.
 
@@ -59,7 +59,7 @@ Correr `node scripts/inspeccionar.mjs "<endereço de pré-visualização>"` sobr
 
 Corrigir o ficheiro e gravar de novo. Atenção: numa página que já foi vista, o Elementor continua a servir o CSS antigo até ela ser guardada no editor, e os prints mostrariam o desenho anterior. Para comparar uma afinação:
 
-- no treino: tirar de `clientes/<cliente>/paginas/<slug>.wp.json` só a linha do treino (`http://127.0.0.1:9400`), sem apagar o ficheiro, que guarda também o número do rascunho no staging, e gravar outra vez: cria um rascunho novo (o treino limpa-se quando reinicia);
+- no treino: apagar `clientes/<cliente>/paginas/<slug>.wp.json` e gravar outra vez, o que cria um rascunho novo (o treino limpa-se quando reinicia);
 - num staging: abrir o rascunho no editor do Elementor e carregar em "Guardar rascunho" (com o Claude in Chrome, ou pedir à pessoa), e só depois tirar os prints.
 
 No máximo duas voltas; depois, mostrar à pessoa o que ainda difere e porquê (por exemplo: a referência usa um widget pago ou uma animação).
@@ -75,7 +75,7 @@ A pessoa decide; o Claude avisa uma vez, em linguagem simples, e segue.
 - **Texto, fotografias ou logótipos da referência:** avisar que são de outra pessoa e que publicá-los pode dar problemas de direitos de autor. Se a referência for do próprio cliente (outro site dele, uma página antiga) ou a pessoa disser que há autorização, usa-se.
 - **Letras pagas ou exclusivas da referência** (Adobe Fonts, letras da marca): avisar que precisam de licença no site do cliente. Por defeito, a Google Font mais parecida.
 - **Widgets pagos** (Elementor Pro, addons): usar se o site do cliente os tiver (ver `levantamento.md`) e avisar que a página deixa de abrir num site sem eles. Por defeito, só gratuitos.
-- **Animações da referência:** a regra do kit é sem animações de entrada, porque há sites onde ficam invisíveis. Se a pessoa as quiser, avisar disso e pôr só nas secções que ela escolher.
+- **Animações da referência:** as animações de entrada passam para os widgets (títulos, textos, imagens, botões), nunca para as secções (containers), para o fundo nunca ficar invisível. Ver no navegador, também em telemóvel, que tudo aparece ao rolar.
 
 ## Nunca
 

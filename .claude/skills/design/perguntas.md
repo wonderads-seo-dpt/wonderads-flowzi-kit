@@ -13,7 +13,7 @@ Enviar numa só mensagem, tirando o que já se sabe. Adaptar as palavras ao pedi
 > 3. **Para quem e para quê:** quem vai ler a página e o que deve fazer no fim (marcar, ligar, comprar, pedir orçamento)?
 > 4. **Até onde ir:** de 1 (sóbrio, quase invisível) a 5 (ousado, impossível de ignorar), e alguma coisa que não queiras ver?
 
-Numa loja Shopify, juntar uma linha antes das perguntas: "Na loja, este estilo aplica-se às páginas com desenho; nas páginas de texto e nos artigos, o desenho é o do tema e o estilo guia o texto e as imagens."
+Numa loja Shopify, juntar uma linha antes das perguntas: "Na loja, o desenho vive no tema; este estilo vai guiar o texto e as imagens das páginas."
 
 ## Das palavras às decisões
 

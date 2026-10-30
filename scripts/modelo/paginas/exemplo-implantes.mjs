@@ -7,7 +7,7 @@ export default {
   slug: 'implantes-dentarios-oeiras',
   elementos: [
   seccao([
-    titulo('Implantes dentários fixos, com plano fechado antes de começar.', 'h1', { cor: '#FFFFFF' }),
+    titulo('Implantes dentários fixos, com plano fechado antes de começar.', 'h1', { cor: '#FFFFFF', tamanho: 52 }),
     texto('Avaliação com TAC 3D, orçamento por escrito e o mesmo médico do início ao fim.', { cor: '#C9D3E0', tamanho: 19 }),
     botao('Marcar avaliação', '[destino por confirmar]'),
     linha([

@@ -2,17 +2,13 @@
 // Cada peça já traz o valor de telemóvel. Uma página é uma lista de seccao(...).
 // Todas aceitam { extra: {...} }: definições do Elementor que se juntam às da peça, para seguir o desenho de uma
 // referência (/wp-replicar) sem sair dos widgets reais. Ex.: titulo('Olá', 'h2', { extra: { typography_letter_spacing: px(-1) } }).
-// Os títulos (titulo, rotulo e o título das caixas com ícone) seguem o estilo de cada nível em "titulos" no marca.json
-// (ver titulos-estilo.mjs); o extra num título é só para uma excepção que a pessoa pediu.
 import { readFileSync, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { raiz, pasta } from './wp.mjs';
-import { titulosDaMarca } from './titulos-estilo.mjs';
 
 const ficheiroMarca = pasta && existsSync(`${pasta}/marca.json`) ? `${pasta}/marca.json` : `${raiz}/scripts/modelo/marca.json`;
 // replace: o Bloco de Notas pode gravar o ficheiro com BOM, que o JSON.parse não aceita.
 export const marca = JSON.parse(readFileSync(ficheiroMarca, 'utf8').replace(/^\uFEFF/, ''));
-const T = titulosDaMarca(marca, ficheiroMarca.replace(/^.*[/\\](clientes|scripts)[/\\]/, '$1/'));
 const C = marca.cores;
 // Ícones e números precisam de 3:1 sobre fundo claro; o acento dos botões nem sempre chega lá.
 const DESTAQUE = C.destaque || C.acento;
@@ -28,18 +24,17 @@ const espaco = (v) => ({ unit: 'px', size: v, column: String(v), row: String(v) 
 export const container = (settings, elements) => ({ id: id(), elType: 'container', isInner: false, elements, settings });
 export const widget = (widgetType, settings) => ({ id: id(), elType: 'widget', widgetType, settings, elements: [] });
 
-// Opções de estilo (todas opcionais, por cima do marca.json): cor, tamanho, tablet, telemovel, peso, familia, altura,
-// espacamento, maiusculas, italico e destaque (como saem as palavras em <em>: 'cor', 'sublinhado', 'marcador', 'degrade').
-export const titulo = (t, nivel, { alinhar = 'left', extra = {}, ...o } = {}) => {
-  const e = T.estilo(nivel, o);
-  return widget('heading', { title: T.destacar(t, e), header_size: nivel, align: alinhar, title_color: e.cor, ...T.elementor(e), ...extra });
-};
-
-// Rótulo: a etiqueta pequena por cima de um título ("TRATAMENTOS"). Não é um título para o Google (vai em p).
-export const rotulo = (t, { alinhar = 'left', extra = {}, ...o } = {}) => {
-  const e = T.estilo('rotulo', o);
-  return widget('heading', { title: t, header_size: 'p', align: alinhar, title_color: e.cor, ...T.elementor(e), _css_classes: 'wa-rotulo', ...extra });
-};
+export const titulo = (t, nivel, { cor = C.principal, tamanho = 38, alinhar = 'left', peso, extra = {} } = {}) =>
+  widget('heading', {
+    title: t, header_size: nivel, align: alinhar, title_color: cor,
+    typography_typography: 'custom', typography_font_family: F.titulos,
+    typography_font_size: px(tamanho),
+    typography_font_size_tablet: px(Math.round(tamanho * 0.82)),
+    typography_font_size_mobile: px(Math.max(20, Math.round(tamanho * 0.64))),
+    typography_font_weight: peso ? String(peso) : ['h1', 'h2'].includes(nivel) ? '700' : '600',
+    typography_line_height: { unit: 'em', size: nivel === 'h1' ? 1.1 : 1.2, sizes: [] },
+    ...extra,
+  });
 
 export const texto = (html, { cor = C.texto, tamanho = 17, alinhar = 'left', extra = {} } = {}) =>
   widget('text-editor', {
@@ -85,20 +80,18 @@ export const lista = (itens, { cor = C.texto, extra = {} } = {}) =>
     ...extra,
   });
 
-// O título da caixa é um h3: com um h3 no marca.json fica igual aos outros h3; sem ele, 21 px como sempre.
-export const caixaIcone = (icone, t, desc, { posicao = 'top', alinhar, extra = {} } = {}) => {
-  const e = T.estilo('h3', {}, { tamanho: 21, peso: 700 });
-  return widget('icon-box', {
+export const caixaIcone = (icone, t, desc, { posicao = 'top', alinhar, extra = {} } = {}) =>
+  widget('icon-box', {
     selected_icon: { value: icone, library: 'fa-solid' },
-    title_text: T.destacar(t, e), description_text: desc, position: posicao, ...(alinhar ? { text_align: alinhar } : {}), title_size: 'h3',
-    primary_color: DESTAQUE, title_color: e.cor, description_color: C.texto,
+    title_text: t, description_text: desc, position: posicao, ...(alinhar ? { text_align: alinhar } : {}), title_size: 'h3',
+    primary_color: DESTAQUE, title_color: C.principal, description_color: C.texto,
     icon_size: px(32),
-    ...T.elementor(e, 'title_typography_', { completo: e.daMarca }),
+    title_typography_typography: 'custom', title_typography_font_family: F.titulos,
+    title_typography_font_size: px(21), title_typography_font_weight: '700',
     description_typography_typography: 'custom', description_typography_font_family: F.corpo,
     description_typography_font_size: px(16),
     ...extra,
   });
-};
 
 // Número fixo em vez do widget de contador: o contador depende de JavaScript de animação
 // que alguns sites não carregam, e fica a zero.
@@ -137,12 +130,10 @@ export const seccao = (filhos, { fundo = '#FFFFFF', topo = 96, base = 96, alinha
     ...extra,
   }, filhos);
 
-// As colunas encolhem em vez de passarem para baixo: com os 10 px de margem que o Elementor dá à linha, duas de 50%
-// ou três de 32% mais o espaço entre elas não cabiam, e a última caía para a linha seguinte.
 export const linha = (filhos, { espacamento = 28, alinhar = 'stretch', extra = {} } = {}) =>
   container({
     content_width: 'full', flex_direction: 'row', flex_direction_mobile: 'column',
-    flex_gap: espaco(espacamento), flex_align_items: alinhar, flex_wrap: 'nowrap',
+    flex_gap: espaco(espacamento), flex_align_items: alinhar, flex_wrap: 'wrap',
     ...extra,
   }, filhos);
 

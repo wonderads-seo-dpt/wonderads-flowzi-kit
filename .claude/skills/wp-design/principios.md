@@ -16,14 +16,14 @@ O herói abre com o que é mais característico desse mundo: uma fotografia real
 - Usar as letras da marca (`marca.json`, `design.md`), com uma escala clara: o h1 bem maior do que o h2, o h2 bem maior do que o texto.
 - Linhas de texto com menos de 80 caracteres: secções de leitura com `estreita: true` ou colunas.
 - Evitar, porque denunciam uma página gerada:
-  - realçar uma palavra em todos os títulos só porque se pode (o `destaque` de `titulos` usa-se onde a palavra realçada diz alguma coisa);
-  - um `rotulo` em MAIÚSCULAS por cima de cada título (um ou dois na página, onde orientam);
+  - realçar uma só palavra do título com outra cor, itálico ou negrito;
+  - etiquetas em MAIÚSCULAS espaçadas por cima de cada título;
   - etiquetas a mais por cima do conteúdo.
 
 ## Estrutura
 
 - Cada elemento visual diz alguma coisa. Números 01 / 02 / 03 só quando o conteúdo é mesmo uma sequência (os passos de uma primeira consulta, sim; três vantagens, não).
-- Nada de animações de entrada (já é regra do kit). Movimento só quando responde a uma acção da pessoa, como abrir uma pergunta frequente.
+- Animações de entrada só nos widgets, nunca nas secções (containers), para o fundo nunca ficar invisível (regra do kit). Ver no navegador, também em telemóvel, que tudo aparece ao rolar. Fora isso, movimento só quando responde a uma acção da pessoa, como abrir uma pergunta frequente.
 
 ## Os sinais de uma página feita por IA
 

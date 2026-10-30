@@ -2,9 +2,8 @@
 // Se o ficheiro trouxer perguntas frequentes, acrescenta a marcação FAQPage para o Google.
 // uso: node scripts/criar-artigo.mjs clientes/<cliente>/artigos/<slug>.mjs
 // Voltar a correr o mesmo ficheiro actualiza o rascunho que ele criou nesse site (o número fica em <ficheiro>.wp.json).
-// Depois de gravar, faz o documento para o cliente validar o texto em clientes/<cliente>/validacao/ (documento.mjs).
 import { pathToFileURL } from 'node:url';
-import { wp, exigirLigacao, site, cliente, guardarCopia, ficheiroDoCliente, registo } from './wp.mjs';
+import { wp, exigirLigacao, site, guardarCopia, ficheiroDoCliente, registo } from './wp.mjs';
 
 exigirLigacao();
 const ficheiro = process.argv[2];
@@ -81,15 +80,6 @@ if (alvo) {
 }
 reg.guardar(artigo.id);
 
-// O documento para o cliente validar o texto, a partir do que ficou gravado. Se falhar, o artigo já está gravado.
-let documento;
-try {
-  const { documentoDePagina } = await import('./validacao.mjs');
-  documento = `  documento       ${documentoDePagina(artigo, { site, cliente, seo: a.seo }).relativo} (para o cliente validar o texto)`;
-} catch (e) {
-  documento = `  Aviso: o artigo ficou gravado, mas o documento para o cliente validar não se fez (${e.message}).\n  Repetir com node scripts/documento.mjs ${artigo.id}`;
-}
-
 const palavras = partes.join(' ').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 console.log(`
   artigo          ${artigo.id} · ${a.titulo}
@@ -101,5 +91,4 @@ console.log(`
 
   editar          ${site}/wp-admin/post.php?post=${artigo.id}&action=edit
   pré-visualizar  ${site}/?p=${artigo.id}&preview=true
-${documento}
 `);

@@ -24,11 +24,10 @@ Para cada correcção repetida, propor um sítio, e só um:
 | Se a correcção é sobre | Fica em |
 |---|---|
 | Cor, tipo de letra, destaque | `clientes/<cliente>/marca.json` e secção Marca de `clientes/<cliente>/CLAUDE.md` |
-| O aspecto dos títulos (tamanho, peso, letra, espaçamento, palavras realçadas) | `titulos` no `clientes/<cliente>/marca.json`, por nível (`.claude/skills/design/titulos.md`). Nunca uma regra para um título só |
 | Tom, palavras proibidas, como o cliente fala | Secção Marca de `clientes/<cliente>/CLAUDE.md` |
 | Outra regra que vale para todas as páginas deste cliente | "Regras aprendidas" de `clientes/<cliente>/CLAUDE.md` |
 | Estrutura de um tipo de página ou artigo deste cliente | A skill do cliente para essa tarefa. Se ainda não existir, sugerir `/criar-skill` |
-| Um erro que acontece em qualquer cliente | Não se muda aqui. Propor com `/contribuir`, para a Flowzi actualizar o kit para todos |
+| Um erro que acontece em qualquer cliente | Não se muda aqui. Escrever a descrição para enviar à Flowzi, que actualiza o kit para todos |
 | Uma preferência de uma só página | Não passa a regra. Dizer porquê |
 
 Mostrar o texto exacto a acrescentar, no sítio exacto. Gravar só depois do sim.
@@ -39,6 +38,6 @@ Em `clientes/<cliente>/notas/correcoes.md`, marcar cada correcção tratada com 
 
 ## Nunca
 
-- Mudar o `CLAUDE.md` da raiz, as skills do kit, os `scripts/` ou `.claude/settings.json`. São iguais para todos os clientes: propõe-se a mudança com `/contribuir`, e chega a todos com `/actualizar`.
+- Mudar o `CLAUDE.md` da raiz, as skills do kit, os `scripts/` ou `.claude/settings.json`. São iguais para todos os clientes e mudam-se na Flowzi e chegam com `/actualizar`.
 - Criar uma regra que contrarie a secção 5 do `CLAUDE.md` da raiz (segurança), mesmo que a correcção a peça.
 - Escrever no cliente errado: a regra vai sempre para o cliente activo.

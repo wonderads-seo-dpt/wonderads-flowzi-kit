@@ -2,7 +2,7 @@
 name: criar-skill
 description: >
   Cria uma skill própria deste cliente para uma tarefa que se repete (por exemplo "página de
-  tratamento da clínica X" ou "artigo do blogue da loja Y"), com a estrutura, o tom e as regras
+  tratamento da MIMUS" ou "artigo do blogue da clínica X"), com a estrutura, o tom e as regras
   dele já escritos, para que saia sempre igual. Gatilhos: "cria uma skill", "faz disto uma
   receita", "isto repete-se sempre", "/criar-skill".
 ---
@@ -22,7 +22,7 @@ Perguntar, uma de cada vez:
 
 ## 2 · Escrever
 
-Nome: `<cliente>-<tarefa>`, em minúsculas e sem acentos (`clinica-sorriso-tratamento`). Criar `.claude/skills/<nome>/SKILL.md` com esta forma:
+Nome: `<cliente>-<tarefa>`, em minúsculas e sem acentos (`mimus-tratamento`). Criar `.claude/skills/<nome>/SKILL.md` com esta forma:
 
 ```
 ---
@@ -65,5 +65,4 @@ Pedir à pessoa que a use já, num caso real, no treino ou no staging. Se ela n�
 - Assenta sempre numa skill do kit e grava com os mesmos scripts. Uma skill nunca chama o WordPress de outra forma.
 - Não contradiz o `CLAUDE.md` da raiz. Se a pessoa pedir algo que choque com as secções 3 a 7, dizer qual regra e não escrever.
 - Não leva endereços, utilizadores nem passwords.
-- Não fixa tamanhos nem estilos de títulos: esses vivem em `titulos` no `marca.json` do cliente (`.claude/skills/design/titulos.md`).
 - Não altera as skills do kit, os `scripts/` nem `.claude/settings.json`. O que é deste cliente vive na skill dele.
