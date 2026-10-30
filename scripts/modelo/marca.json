@@ -1,0 +1,19 @@
+{
+  "cliente": "[nome comercial]",
+  "cores": {
+    "principal": "#0C1B2E",
+    "acento": "#1FB6A6",
+    "texto": "#2D3748",
+    "texto_sobre_acento": "#04231F",
+    "claro": "#F4F7FA"
+  },
+  "tipografia": {
+    "titulos": "Inter",
+    "corpo": "Inter"
+  },
+  "titulos": {
+    "h1": {
+      "tamanho": 52
+    }
+  }
+}

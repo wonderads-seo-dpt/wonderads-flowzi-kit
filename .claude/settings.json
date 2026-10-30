@@ -1,0 +1,160 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -v)",
+      "Bash(node scripts/treino.mjs)",
+      "Bash(node scripts/treino.mjs:*)",
+      "Bash(node scripts/cliente.mjs)",
+      "Bash(node scripts/cliente.mjs:*)",
+      "Bash(node scripts/ligar.mjs)",
+      "Bash(node scripts/listar.mjs)",
+      "Bash(node scripts/inspeccionar.mjs:*)",
+      "Bash(node scripts/rever.mjs:*)",
+      "Bash(node scripts/pixabay.mjs:*)",
+      "Bash(node scripts/estado.mjs)",
+      "Bash(node scripts/seccao.mjs --listar:*)",
+      "PowerShell(node -v)",
+      "PowerShell(node scripts/treino.mjs)",
+      "PowerShell(node scripts/treino.mjs:*)",
+      "PowerShell(node scripts/cliente.mjs)",
+      "PowerShell(node scripts/cliente.mjs:*)",
+      "PowerShell(node scripts/ligar.mjs)",
+      "PowerShell(node scripts/listar.mjs)",
+      "PowerShell(node scripts/inspeccionar.mjs:*)",
+      "PowerShell(node scripts/rever.mjs:*)",
+      "PowerShell(node scripts/pixabay.mjs:*)",
+      "PowerShell(node scripts/estado.mjs)",
+      "PowerShell(node scripts/seccao.mjs --listar:*)",
+      "Bash(node scripts/verificar.mjs)",
+      "PowerShell(node scripts/verificar.mjs)",
+      "Bash(node scripts/shopify-ligar.mjs)",
+      "Bash(node scripts/shopify-listar.mjs)",
+      "Bash(node scripts/shopify-listar.mjs:*)",
+      "PowerShell(node scripts/shopify-ligar.mjs)",
+      "PowerShell(node scripts/shopify-listar.mjs)",
+      "PowerShell(node scripts/shopify-listar.mjs:*)",
+      "Bash(node scripts/contribuir.mjs)",
+      "PowerShell(node scripts/contribuir.mjs)",
+      "Bash(node scripts/novidades.mjs)",
+      "PowerShell(node scripts/novidades.mjs)",
+      "Bash(node scripts/titulos.mjs --ver)",
+      "Bash(node scripts/titulos.mjs --ver:*)",
+      "Bash(node scripts/listar.mjs --modelos)",
+      "Bash(node scripts/documento.mjs:*)",
+      "PowerShell(node scripts/titulos.mjs --ver)",
+      "PowerShell(node scripts/titulos.mjs --ver:*)",
+      "PowerShell(node scripts/listar.mjs --modelos)",
+      "PowerShell(node scripts/documento.mjs:*)",
+      "Bash(node scripts/shopify-publicar.mjs:*)",
+      "PowerShell(node scripts/shopify-publicar.mjs:*)"
+    ],
+    "ask": [
+      "Bash(node scripts/criar-pagina.mjs:*)",
+      "Bash(node scripts/regenerar-css.mjs:*)",
+      "Bash(node scripts/criar-artigo.mjs:*)",
+      "Bash(node scripts/criar-pagina-blocos.mjs:*)",
+      "Bash(node scripts/ligacao.mjs*)",
+      "Bash(node scripts/actualizar.mjs*)",
+      "Edit(./scripts/**)",
+      "Edit(./.claude/settings.json)",
+      "Edit(./CLAUDE.md)",
+      "Bash(rm -rf:*)",
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(*ligacao.mjs*)",
+      "Bash(*actualizar.mjs*)",
+      "Bash(node -e:*)",
+      "Bash(node --eval:*)",
+      "Bash(node -p:*)",
+      "Bash(wget:*)",
+      "Bash(rm -fr:*)",
+      "Bash(rm -r:*)",
+      "Edit(/scripts/**)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/.cliente)",
+      "Edit(/.claude/settings.json)",
+      "Edit(/.claude/settings.local.json)",
+      "Edit(/.claude/hooks/**)",
+      "Edit(**/.env)",
+      "PowerShell(node scripts/criar-pagina.mjs:*)",
+      "PowerShell(node scripts/regenerar-css.mjs:*)",
+      "PowerShell(node scripts/criar-artigo.mjs:*)",
+      "PowerShell(node scripts/criar-pagina-blocos.mjs:*)",
+      "PowerShell(node scripts/ligacao.mjs*)",
+      "PowerShell(node scripts/actualizar.mjs*)",
+      "PowerShell(rm -rf:*)",
+      "PowerShell(curl:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(*ligacao.mjs*)",
+      "PowerShell(*actualizar.mjs*)",
+      "PowerShell(node -e:*)",
+      "PowerShell(node --eval:*)",
+      "PowerShell(node -p:*)",
+      "PowerShell(wget:*)",
+      "PowerShell(rm -fr:*)",
+      "PowerShell(rm -r:*)",
+      "Bash(node scripts/verificar.mjs --corrigir)",
+      "PowerShell(node scripts/verificar.mjs --corrigir)",
+      "Bash(node scripts/shopify-pagina.mjs:*)",
+      "Bash(node scripts/shopify-artigo.mjs:*)",
+      "PowerShell(node scripts/shopify-pagina.mjs:*)",
+      "PowerShell(node scripts/shopify-artigo.mjs:*)",
+      "Bash(node scripts/contribuir.mjs --pr:*)",
+      "PowerShell(node scripts/contribuir.mjs --pr:*)",
+      "Bash(*contribuir.mjs*--pr*)",
+      "PowerShell(*contribuir.mjs*--pr*)",
+      "Bash(gh:*)",
+      "PowerShell(gh:*)",
+      "Bash(*shopify-publicar.mjs*--confirmo*)",
+      "Bash(*documento.mjs*--drive*)",
+      "PowerShell(*shopify-publicar.mjs*--confirmo*)",
+      "PowerShell(*documento.mjs*--drive*)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(./.env*)",
+      "Bash(*.env*)",
+      "PowerShell(*.env*)",
+      "Bash(shopify theme publish:*)",
+      "Bash(shopify theme delete:*)",
+      "Bash(shopify store:*)",
+      "Bash(shopify app deploy:*)",
+      "Bash(*--allow-live*)",
+      "Bash(*--allow-mutations*)",
+      "PowerShell(shopify theme publish:*)",
+      "PowerShell(shopify theme delete:*)",
+      "PowerShell(shopify store:*)",
+      "PowerShell(shopify app deploy:*)",
+      "PowerShell(*--allow-live*)",
+      "PowerShell(*--allow-mutations*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node -e \"import(require('url').pathToFileURL(require('path').join(process.env.CLAUDE_PROJECT_DIR||'.','scripts','estado.mjs')))\""
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"import(require('url').pathToFileURL(require('path').join(process.env.CLAUDE_PROJECT_DIR||'.','scripts','novidades.mjs')))\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Read|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"import(require('url').pathToFileURL(require('path').join(process.env.CLAUDE_PROJECT_DIR||'.','.claude','hooks','guarda.mjs')))\""
+          }
+        ]
+      }
+    ]
+  }
+}

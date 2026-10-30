@@ -1,0 +1,12 @@
+.env
+.env.pixabay
+.cliente
+clientes/*/.env
+clientes/*/copias/
+clientes/*/referencias/
+node_modules/
+treino/servidor.log
+treino/.pid
+treino/uploads/
+.DS_Store
+copias-do-kit/
