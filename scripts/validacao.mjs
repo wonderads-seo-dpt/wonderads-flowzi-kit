@@ -5,8 +5,12 @@ import { constants, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSy
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
-import { pastaDe } from './clientes.mjs';
+import { pastaDe, nomeComercial } from './clientes.mjs';
 import { docx, blocosDeHtml, desentidades } from './docx.mjs';
+
+// O logótipo da Wonder Ads, no topo de todos os documentos. Sem o ficheiro, o documento sai sem logótipo.
+const LOGO = new URL('./docx/wonderads-logo.png', import.meta.url);
+const logo = () => { try { return readFileSync(LOGO); } catch { return null; } };
 
 const escA = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 const escT = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -150,7 +154,8 @@ export function gravarDocumento({ cliente, titulo, slug, id, endereco, seo = {},
   const tituloGoogle = seo.titulo || seo.title || '';
   const descricaoGoogle = seo.descricao || seo.description || '';
   const cabeca = [
-    { tipo: 'nota', partes: [{ texto: 'Para validar: comentar ou sugerir alterações neste documento.' }] },
+    { tipo: 'etiqueta', partes: [{ texto: `Proposta de conteúdo · ${nomeComercial(cliente)} · para aprovação do cliente` }] },
+    { tipo: 'nota', partes: [{ texto: 'Para validar: comentar ou sugerir alterações neste documento. O desenho final está no site e não aparece aqui. O que está a amarelo ainda está por confirmar.' }] },
     ...linha(artigo ? 'Artigo' : 'Página', titulo),
     ...linha('Endereço previsto', endereco, endereco),
     ...linha('Título para o Google', tituloGoogle),
@@ -163,7 +168,7 @@ export function gravarDocumento({ cliente, titulo, slug, id, endereco, seo = {},
   const ficheiro = join(dir, `${ascii(slug) || ascii(titulo) || 'pagina'}-${numero}-${hoje()}.docx`);
   mkdirSync(dir, { recursive: true });
   try {
-    writeFileSync(ficheiro, docx({ titulo, blocos: [...cabeca, ...conteudo] }));
+    writeFileSync(ficheiro, docx({ titulo, blocos: [...cabeca, ...conteudo], autor: 'Wonder Ads', logo: logo() }));
   } catch (e) {
     if (['EBUSY', 'EPERM', 'EACCES'].includes(e.code)) throw new Error(`não consegui gravar ${ficheiro}: está aberto no Word? Fechá-lo e repetir`);
     throw e;
@@ -242,12 +247,32 @@ export function pastaDoDrive(casa = homedir()) {
   return candidatas.find(ePasta) || '';
 }
 
-// Copia o documento para "Validação de textos/<cliente>/" no Drive. Devolve o destino, ou '' se não houver Drive.
+// A pasta do cliente no Drive, se já existir: a do drive.json do cliente ({ "pasta": "G:/Meu Drive/<cliente>" }) ou
+// uma pasta com o nome dele (o curto, spine-center, ou o comercial, Spine Center) na raiz do Drive ou um nível abaixo
+// (Clientes/Spine Center). Os nomes comparam-se sem acentos, maiúsculas nem espaços. Devolve '' se não houver.
+const semAcentos = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+export function pastaDoCliente(cliente, drive) {
+  try {
+    const escolhida = JSON.parse(readFileSync(join(pastaDe(cliente), 'drive.json'), 'utf8').replace(/^\uFEFF/, '')).pasta;
+    if (escolhida && ePasta(escolhida)) return escolhida;
+  } catch {}
+  if (!drive) return '';
+  let titulo = '';
+  try { titulo = (readFileSync(join(pastaDe(cliente), 'CLAUDE.md'), 'utf8').match(/^#\s+(.+)$/m) || [])[1] || ''; } catch {}
+  const nomes = new Set([cliente, nomeComercial(cliente), titulo].map(semAcentos).filter(Boolean));
+  const subpastas = (p) => { try { return readdirSync(p, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith('.') && !d.name.startsWith('$')).map((d) => join(p, d.name)); } catch { return []; } };
+  const nivel1 = subpastas(drive);
+  const igual = (p) => nomes.has(semAcentos(p.split(/[/\\]/).pop()));
+  return nivel1.find(igual) || nivel1.filter((p) => !igual(p)).flatMap(subpastas).find(igual) || '';
+}
+
+// Copia o documento para a pasta do cliente no Drive (pastaDoCliente) ou, sem ela, para "Validação de textos/<cliente>/".
+// Devolve o destino, ou '' se não houver Drive.
 // Nunca por cima: a cópia que lá está pode já ter os comentários do cliente. Uma segunda vai com -2, -3...
 export function paraDrive(ficheiro, cliente, drive = pastaDoDrive()) {
-  if (!drive) return '';
-  if (!ePasta(drive)) throw new Error(`A pasta ${drive} não existe.`);
-  const dir = join(drive, 'Validação de textos', cliente);
+  if (drive && !ePasta(drive)) throw new Error(`A pasta ${drive} não existe.`);
+  const dir = pastaDoCliente(cliente, drive) || (drive ? join(drive, 'Validação de textos', cliente) : '');
+  if (!dir) return '';
   mkdirSync(dir, { recursive: true });
   const nome = ficheiro.split(/[/\\]/).pop();
   for (let n = 1; ; n++) {

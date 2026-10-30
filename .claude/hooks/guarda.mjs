@@ -28,11 +28,23 @@ const bloquear = (motivo) => decidir('deny', `Bloqueado pela guarda do kit: ${mo
 // Pede confirmação à pessoa, mesmo em modo automático.
 const perguntar = (motivo) => decidir('ask', `Aviso do kit: ${motivo}`);
 
-const SKILLS_DO_KIT = ['comecar', 'cliente', 'actualizar', 'wp-ligar', 'wp-briefing', 'wp-landing', 'wp-seccao', 'wp-artigo', 'wp-rever', 'wp-design', 'design', 'wp-replicar', 'shopify-ligar', 'shopify-pagina', 'shopify-artigo', 'shopify-publicar', 'criar-skill', 'aprender'];
+// As skills novas do kit entram nesta lista (as de cliente, <cliente>-<tarefa>, ficam de fora).
+const SKILLS_DO_KIT = [
+  'comecar', 'cliente', 'actualizar', 'contribuir',
+  'wp-ligar', 'wp-briefing', 'wp-landing', 'wp-seccao', 'wp-artigo', 'wp-rever', 'wp-design', 'design', 'wp-replicar',
+  'shopify-ligar', 'shopify-pagina', 'shopify-artigo', 'shopify-publicar',
+  'criar-skill', 'aprender', 'seo',
+  // Skills de design do taste-skill, que passaram a fazer parte do kit.
+  'brandkit', 'design-taste-frontend', 'design-taste-frontend-v1', 'design-taste-frontend-v2-experimental',
+  'full-output-enforcement', 'gpt-taste', 'high-end-visual-design', 'image-to-code', 'imagegen-frontend-mobile',
+  'imagegen-frontend-web', 'industrial-brutalist-ui', 'minimalist-ui', 'redesign-existing-projects', 'stitch-design-taste',
+];
 const doKit = (caminho) => {
   const rel = relative(raiz, resolve(raiz, caminho)).split(sep).join('/');
   if (rel.startsWith('..') || isAbsolute(rel)) return false;
-  return rel === 'CLAUDE.md' || rel === '.gitignore' || rel === 'LEIA-ME.md'
+  // O MANIFESTO.json diz de que versão parte o kit: mexer-lhe escondia mudanças ao /contribuir.
+  return rel === 'CLAUDE.md' || rel === '.gitignore' || rel === 'LEIA-ME.md' || rel === 'NOVIDADES.md'
+    || rel === 'MANIFESTO.json' || rel === 'ASSINATURA' || rel === 'VERSAO'
     || rel.startsWith('scripts/') || rel.startsWith('treino/blueprint')
     || rel.startsWith('.claude/hooks') || /^\.claude\/settings(\.local)?\.json$/.test(rel)
     || SKILLS_DO_KIT.some((s) => rel.startsWith(`.claude/skills/${s}/`));
@@ -46,7 +58,7 @@ const liveDe = (nome) => {
 const activo = () => { try { return readFileSync(join(raiz, '.cliente'), 'utf8').trim(); } catch { return ''; } };
 const todosReais = () => { try { return readdirSync(join(raiz, 'clientes')).map(liveDe).filter(Boolean); } catch { return []; } };
 const eEnv = (caminho) => /^\.env(\.|$)/i.test(basename(String(caminho)));
-const MUDAR_KIT = 'isto altera o kit da agência (regras, scripts ou skills). Só se a pessoa o pediu. A próxima actualização da Flowzi substitui estas alterações: se for para ficar, enviar à Flowzi.';
+const MUDAR_KIT = 'isto altera o kit da agência (regras, scripts ou skills). Só se a pessoa o pediu. A próxima actualização da Flowzi substitui estas alterações: se for para ficar para todos, propor com /contribuir';
 
 // Ferramentas de ficheiros
 if (['Read', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(ferramenta)) {
@@ -55,7 +67,7 @@ if (['Read', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(ferramenta))
     if (ferramenta === 'Read') bloquear('o .env tem a password de aplicação do cliente e não se lê. A ligação grava-se com node scripts/ligacao.mjs, num terminal à parte.');
     perguntar('isto altera a ligação do cliente (.env). O normal é a pessoa usar node scripts/ligacao.mjs num terminal à parte.');
   }
-  if (ferramenta !== 'Read' && doKit(f)) perguntar(MUDAR_KIT);
+  if (ferramenta !== 'Read' && doKit(f)) perguntar(`${MUDAR_KIT}.`);
   process.exit(0);
 }
 
@@ -78,6 +90,7 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
   const avisos = [];
   if (/\bligacao\.mjs\b/i.test(c)) avisos.push('a ligação é feita pela pessoa, num terminal à parte, porque pede a password, que não passa pelo chat');
   else if (/\bactualizar\.mjs\b/i.test(c)) avisos.push('isto actualiza o kit (regras, scripts, skills e guarda). Só se instalam zips assinados pela Flowzi; os clientes ficam como estão');
+  else if (/\bcontribuir\.mjs\b/i.test(c) && /--pr\b/i.test(c.replace(/[`'"^]/g, ''))) avisos.push('isto envia ficheiros do kit para fora do computador (um Pull Request no GitHub da equipa). Só depois de a pessoa ter dito que sim');
   else {
     // O alvo acaba no primeiro separador de comandos: "node -v; ls" é "node -v" seguido de "ls".
     for (const m of c.matchAll(/(?:^|[\s;&|(])node(?:\.exe)?\s+("[^"]+"|'[^']+'|[^\s;&|)]+)/gi)) {
@@ -98,8 +111,11 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
     bloquear('o Shopify CLI não se usa pelo Claude: publica e apaga temas. Na Shopify, o kit só grava páginas e artigos escondidos pelos scripts, e quem publica é uma pessoa, no painel.');
   }
   // Outros programas (npx, npm, python, wget...) deixaram de perguntar (pedido da agência, 28/10/2026).
-  if (false && /(?:^|[\s;&|(])(npx|npm|pnpm|yarn|bun|deno|python3?|py|perl|ruby|php|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)(?:\.exe|\.cmd)?(?=\s|$)/i.test(c)) {
+  if (false && /(?:^|[\s;&|(])(npx|npm|pnpm|yarn|bun|deno|python3?|py|perl|ruby|php|wget|curl|Invoke-WebRequest|Invoke-RestMethod|iwr|irm)(?:\.exe|\.cmd)?(?=\s|$)/i.test(c)) {
     avisos.push('este programa não faz parte do trabalho normal do kit; o WordPress fala-se pelos scripts, que só gravam rascunhos');
+  }
+  if (/(?:^|[\s;&|(])gh(?:\.exe)?(?=\s|$)/i.test(c)) {
+    avisos.push('o gh fala com o GitHub por fora do kit; as versões novas vêm pelo /actualizar e as propostas vão pelo /contribuir, que confirma o que sai');
   }
   // Pesquisa em todas as pastas: só avisa se puder chegar aos .env (fora de paginas/, artigos/, notas/, etc.).
   const pesquisaFunda = [...c.matchAll(/\b(grep\b[^|;&]*\s-[a-zA-Z]*[rR][a-zA-Z]*\b[^|;&]*|findstr\b[^|;&]*\/s\b[^|;&]*|Select-String\b[^|;&]*-Recurse[^|;&]*|(?:gci|Get-ChildItem|dir|ls)\b[^|;&]*\s-r(?:ecurse)?\b[^;&]*\|\s*(?:sls|Select-String|gc|Get-Content|cat|type)\b[^|;&]*)/gi)]
@@ -108,15 +124,16 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
     avisos.push('uma pesquisa em todas as pastas pela shell pode mostrar passwords dos clientes; a pesquisa do Claude não as mostra');
   }
   // Correr um script do kit não é mudar o kit, mesmo com o resultado guardado num ficheiro.
-  const semScripts = c.replace(/node(?:\.exe)?\s+(?:\.[/\\])?scripts[/\\][\w-]+\.mjs/gi, '');
+  // Mandar erros para lado nenhum (2>/dev/null, 2>&1, >$null) também não escreve ficheiros.
+  const semScripts = c.replace(/node(?:\.exe)?\s+(?:\.[/\\])?scripts[/\\][\w-]+\.mjs/gi, '').replace(/\d?>>?\s*(\/dev\/null\b|\$null\b|nul\b|&\d)/gi, '');
   const escreve = />|\btee\b|\bsed\b[^|;&]*\s-i\b|\b(mv|cp|rm|rmdir|touch|ln|chmod|truncate|unlink)\b|Set-Content|Add-Content|Out-File|Remove-Item|Copy-Item|Move-Item|New-Item|Rename-Item/i.test(semScripts);
-  const kitNaShell = new RegExp(`(^|[\\s"'=/\\\\])(scripts[/\\\\]|\\.claude[/\\\\](settings|hooks|skills[/\\\\](${SKILLS_DO_KIT.join('|')})[/\\\\])|CLAUDE\\.md|LEIA-ME\\.md|treino[/\\\\]blueprint)`);
+  const kitNaShell = new RegExp(`(^|[\\s"'=/\\\\])(scripts[/\\\\]|\\.claude[/\\\\](settings|hooks|skills[/\\\\](${SKILLS_DO_KIT.join('|')})[/\\\\])|CLAUDE\\.md|LEIA-ME\\.md|NOVIDADES\\.md|MANIFESTO\\.json|ASSINATURA\\b|VERSAO\\b|treino[/\\\\]blueprint)`);
   if (escreve && kitNaShell.test(semScripts.replace(/clientes[/\\][^\s"']+/g, ''))) avisos.push(MUDAR_KIT);
   if (/\brm\s+-[a-z]*r|\bRemove-Item\b[^|;]*-Recurse|\brmdir\b/i.test(c)) avisos.push('isto apaga pastas, e o que se apaga não volta');
   if (/\bgit\s+push\b/.test(c)) avisos.push('isto envia código para fora do computador');
   // O Windows (e o Mac) não distinguem maiúsculas nos nomes; o seccao.mjs só não grava com --listar logo a seguir.
-  const grava = [...c.matchAll(/(criar-pagina-blocos|criar-pagina|criar-artigo|regenerar-css|seccao|shopify-pagina|shopify-artigo)\.mjs\b["']?([^;&|\r\n]*)/gi)]
-    .some(([, nome, resto]) => nome.toLowerCase() !== 'seccao' || !/^\s*["']?--listar["']?(\s|$)/i.test(resto));
+  const grava = [...c.matchAll(/(criar-pagina-blocos|criar-pagina|criar-artigo|regenerar-css|seccao|titulos|shopify-pagina|shopify-artigo)\.mjs\b["']?([^;&|\r\n]*)/gi)]
+    .some(([, nome, resto]) => !({ seccao: /^\s*["']?--listar["']?(\s|$)/i, titulos: /^\s*["']?--ver["']?(\s|$)/i })[nome.toLowerCase()]?.test(resto));
   // Se o comando também muda de cliente, pode gravar noutro: conta qualquer cliente ligado ao site real.
   const troca = /cliente\.mjs|\.cliente\b/i.test(c);
   const reais = [...new Set(troca ? todosReais() : [liveDe(activo())].filter(Boolean))];
@@ -134,6 +151,10 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
   // Gravar rascunhos no site real deixou de perguntar (pedido da agência, 28/10/2026): os scripts continuam a só gravar rascunhos.
   if (false && reais.length && grava) avisos.push(`isto grava no SITE REAL do cliente (${reais.join(', ')}). Fica em rascunho (na Shopify, escondido): quem visita não o vê, mas aparece no painel do cliente`);
   else if (reais.length && avisos.length) avisos.push(`atenção: o cliente está ligado ao SITE REAL (${reais.join(', ')})`);
+  // O seccao.mjs e o titulos.mjs não estão no "ask" do settings.json, que ganharia ao "allow" do --listar e do --ver:
+  // a pergunta ao gravar faz-se aqui, onde se distingue ler de gravar.
+  // O seccao.mjs grava sem perguntar, como os outros scripts de rascunho (pedido da agência, 28/10/2026).
+  if (grava && !reais.length && /\btitulos\.mjs\b/i.test(c)) avisos.push('isto grava uma cópia em rascunho no WordPress do cliente');
   if (avisos.length) perguntar(`${avisos.join('; ')}. Confirmar só se for mesmo isto que se quer.`);
   process.exit(0);
 }

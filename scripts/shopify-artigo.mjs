@@ -3,7 +3,7 @@
 // Voltar a gravar o mesmo ficheiro actualiza o artigo, enquanto continuar escondido.
 // uso: node scripts/shopify-artigo.mjs clientes/<cliente>/artigos/<artigo>.mjs
 import { pathToFileURL } from 'node:url';
-import { exigirLoja, gravar, ler, registo, ficheiroDoCliente, guardarCopia, painel, numero, loja, metafieldsSeo } from './shopify.mjs';
+import { exigirLoja, gravar, ler, registo, ficheiroDoCliente, guardarCopia, painel, numero, loja, metafieldsSeo, cliente } from './shopify.mjs';
 import { html, imagem } from './shopify-html.mjs';
 import { nomeComercial, activo } from './clientes.mjs';
 
@@ -29,7 +29,7 @@ let actual = null;
 if (reg.id) {
   try { actual = (await ler('artigo', { id: reg.id })).article; } catch {}
   if (actual && actual.isPublished !== false) {
-    throw new Error(`O artigo "${actual.title}" já foi publicado na loja (por uma pessoa). O kit não lhe toca. Para o mudar, gravar uma versão nova com outro handle, ou mudar à mão no painel.`);
+    throw new Error(`O artigo "${actual.title}" já foi publicado na loja (por uma pessoa). O kit não lhe toca enquanto estiver visível. Para o mudar: esconder com /shopify-publicar (só com o sim da pessoa; fica fora do ar até voltar a ser publicado), gravar outra vez e voltar a publicar.`);
   }
 }
 const artigo = {
@@ -51,10 +51,17 @@ if (actual) {
   res = await gravar('articleCreate', { article: { ...artigo, blogId: blog.id, author: { name: a.autor || nomeComercial(activo()) } } });
 }
 reg.guardar(res.article.id);
+let documento = '';
+try {
+  const { documentoDeHtml } = await import('./validacao.mjs');
+  documento = `\n  documento       ${documentoDeHtml({ titulo: a.titulo, seo: a.seo, html: artigo.body, cliente, artigo: true, resumo: a.resumo, slug: res.article.handle, endereco: `https://${loja}/blogs/${res.article.blog?.handle || blog.handle}/${res.article.handle}` }).relativo} (para o cliente validar o texto)`;
+} catch (e) {
+  documento = `\n\n  Aviso: o artigo ficou gravado, mas o documento para o cliente validar não se fez (${e.message}).`;
+}
 console.log(`
   artigo          ${numero(res.article.id)} · ${res.article.title}
   blogue          ${res.article.blog?.title || blog.title}
   estado          ${res.article.isPublished === false ? 'escondido (só se vê no painel)' : res.article.isPublished}
   loja            ${loja}
-  editar          ${painel(`articles/${numero(res.article.id)}`)}
+  editar          ${painel(`articles/${numero(res.article.id)}`)}${documento}
 `);

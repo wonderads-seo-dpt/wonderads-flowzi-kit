@@ -19,7 +19,7 @@ export function ambiente(url, confirmado = '', live = '') {
   try { u = new URL(url); } catch { return 'desconhecido'; }
   const host = u.hostname.toLowerCase();
   if (eLocal(host)) return u.host === TREINO || u.host === 'localhost:9400' ? 'treino' : 'local';
-  // A marca só conta nos subdomínios, nunca no nome do site nem na terminação: mimus.dev, clinicadev.pt e qa.pt são sites reais.
+  // A marca só conta nos subdomínios, nunca no nome do site nem na terminação: marca.dev, clinicadev.pt e qa.pt são sites reais.
   const partes = host.split('.');
   if (partes.slice(0, -2).some((p) => MARCA.test(p))) return 'staging';
   // Staging numa subpasta, como o fazem os plugins de staging: cliente.pt/staging. O site real é outro (cliente.pt).

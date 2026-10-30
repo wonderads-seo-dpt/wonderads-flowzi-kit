@@ -17,7 +17,7 @@ A loja é a loja real do cliente: o que se publica fica logo à vista de quem a 
    node scripts/shopify-publicar.mjs <publicar|esconder|apagar> clientes/<cliente>/paginas/<handle>.mjs
    node scripts/shopify-publicar.mjs <publicar|esconder|apagar> pagina <número>     (ou artigo <número>)
    ```
-4. Dizer à pessoa, por palavras simples, o que o script mostrou: que página ou artigo, em que loja, em que endereço, e o que acontece (fica visível, deixa de se ver, desaparece). Antes de publicar, lembrar o `/wp-rever` se o texto ainda não foi revisto. Perguntar se avança.
+4. Dizer à pessoa, por palavras simples, o que o script mostrou: que página ou artigo, em que loja, em que endereço, e o que acontece (fica visível, deixa de se ver, desaparece). Antes de publicar, se o texto ainda não foi revisto, relê-lo com a lista "Shopify" do `/seo` e as secções 3 e 4 do `CLAUDE.md` (o `/wp-rever` não lê a loja). Perguntar se avança.
 5. Só com o sim: o mesmo comando com `--confirmo` no fim. O Claude Code mostra ainda um "Aviso do kit"; a pessoa confirma lá também.
 6. Entregar o que o script mostrou: o estado final, o link do painel ou, ao apagar, onde ficou a cópia (`copias/`).
 

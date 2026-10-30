@@ -54,7 +54,7 @@ Se nenhum comando chegar a correr (erro de "bash", de shell ou de terminal antes
 Explicar em seis linhas, sem jargão. Esta é a pasta de trabalho para sempre: todos os clientes vivem aqui dentro.
 
 - `CLAUDE.md`: as regras da agência, que o Claude lê sempre que abre esta pasta.
-- `.claude/skills/`: as receitas. Cada uma chama-se com uma barra: `/cliente`, `/wp-ligar`, `/wp-landing`, `/wp-seccao`, `/wp-artigo`, `/wp-rever`, `/wp-briefing`, `/design`, `/wp-design`, `/wp-replicar`, `/shopify-ligar`, `/shopify-pagina`, `/shopify-artigo`, `/shopify-publicar`, `/criar-skill`, `/aprender`, `/actualizar`.
+- `.claude/skills/`: as receitas. Cada uma chama-se com uma barra: `/cliente`, `/wp-ligar`, `/wp-landing`, `/wp-seccao`, `/wp-artigo`, `/wp-rever`, `/wp-briefing`, `/design`, `/wp-design`, `/wp-replicar`, `/shopify-ligar`, `/shopify-pagina`, `/shopify-artigo`, `/shopify-publicar`, `/criar-skill`, `/aprender`, `/seo`, `/actualizar`, `/contribuir`.
 - `clientes/`: uma pasta por cliente, com a marca, as regras e as páginas dele. O treino é o primeiro.
 - `scripts/`: o que fala com o WordPress e com a Shopify. Ninguém precisa de os abrir.
 - `treino/`: o WordPress de treino.

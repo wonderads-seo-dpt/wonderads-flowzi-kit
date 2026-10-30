@@ -25,6 +25,11 @@ export function ficheirosDe(pasta) {
 }
 
 export const hash = (f) => createHash('sha256').update(readFileSync(f)).digest('hex');
+// O Finder e o Explorador deixam ficheiros seus nas pastas que se abrem; não contam.
+export const lixo = (f) => /(^|\/)(\.DS_Store|Thumbs\.db|desktop\.ini|\._[^/]*)$/i.test(f) || f.startsWith('__MACOSX/');
+// Só existem no repositório da equipa (a página do GitHub, os modelos, os fins de linha): numa pasta clonada não
+// contam como a mais, e o /actualizar nunca os copia, porque só copia o que está assinado.
+export const soDoRepositorio = (f) => f === '.git' || /^\.git(hub)?\//.test(f) || f === 'README.md' || f === '.gitattributes';
 
 // Devolve a versão e a lista de ficheiros assinados do kit novo, ou lança um erro a dizer porque não se pode instalar.
 export function verificar(pasta, chave = CHAVE_FLOWZI) {
@@ -37,11 +42,9 @@ export function verificar(pasta, chave = CHAVE_FLOWZI) {
     throw new Error('A assinatura não é da Flowzi (ou o zip foi alterado). Não se instala: pedir à Flowzi o zip oficial.');
   }
   const m = JSON.parse(bruto.toString('utf8'));
-  // O Finder e o Explorador deixam ficheiros seus nas pastas que se abrem; não contam.
-  const lixo = (f) => /(^|\/)(\.DS_Store|Thumbs\.db|desktop\.ini|\._[^/]*)$/i.test(f) || f.startsWith('__MACOSX/');
   const presentes = ficheirosDe(pasta).filter((f) => f !== MANIFESTO && f !== ASSINATURA && !lixo(f));
   const esperados = Object.keys(m.ficheiros || {}).sort();
-  const aMais = presentes.filter((f) => !Object.hasOwn(m.ficheiros, f));
+  const aMais = presentes.filter((f) => !Object.hasOwn(m.ficheiros, f) && !soDoRepositorio(f));
   const emFalta = esperados.filter((f) => !presentes.includes(f));
   const alterados = esperados.filter((f) => presentes.includes(f) && hash(join(pasta, f)) !== m.ficheiros[f]);
   if (aMais.length || emFalta.length || alterados.length) {

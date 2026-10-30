@@ -45,7 +45,7 @@ Sem acento: o botão principal é claro sobre escuro e escuro sobre claro. Não 
 
 ## Espaço
 
-Conteúdo a 1280 px. Secções com 140 px em cima e em baixo (84 no telemóvel, automático). 32 px entre elementos, 40 entre colunas.
+Conteúdo a 1 280 px. Secções com 140 px em cima e em baixo (84 no telemóvel, automático). 32 px entre elementos, 40 entre colunas.
 
 ## Forma
 
@@ -82,6 +82,19 @@ Vídeo no herói (pesa e o Elementor gratuito não o garante no telemóvel), ani
 
 ---
 
+## Os títulos, no marca.json
+
+Com o sim da pessoa, a Escala e as Letras dos títulos vão para `titulos` no `marca.json` do cliente (ver `titulos.md`), e as páginas deixam de as repetir:
+
+```json
+"titulos": {
+  "estilo": "pista-nocturna",
+  "h1": { "familia": "Lexend Exa", "tamanho": 88, "telemovel": 36, "peso": 500, "espacamento": 0 },
+  "h2": { "familia": "Lexend Exa", "tamanho": 44, "peso": 500, "espacamento": 0 },
+  "h3": { "familia": "Lexend Exa", "tamanho": 24, "peso": 500, "espacamento": 0 }
+}
+```
+
 ## As receitas no kit
 
 No topo do ficheiro da página (`clientes/<cliente>/paginas/<slug>.mjs`), depois do `import`:
@@ -90,10 +103,10 @@ No topo do ficheiro da página (`clientes/<cliente>/paginas/<slug>.mjs`), depois
 import { seccao, linha, coluna, titulo, texto, botao, imagem, perguntas, widget, px, caixa, marca } from '../../../scripts/elementor.mjs';
 
 const E = { escuro: '#0E0E12', claro: '#FFFFFF', cinza: '#F5F5F7', sec: '#5E6068', secEscuro: '#A1A3AB', linha: '#3A3B41' };
-const LETRA = { typography_font_family: 'Lexend Exa', typography_letter_spacing: px(0) };
 const SECCAO = { topo: 140, base: 140, largura: 1280 };
 
-const t = (txt, nivel, o = {}) => titulo(txt, nivel, { peso: 500, ...o, extra: { ...LETRA, ...o.extra } });
+// Os números grandes não são títulos (vão em p): levam a letra do estilo na chamada.
+const valor = (txt) => titulo(txt, 'p', { tamanho: 56, cor: E.claro, peso: 500, familia: 'Lexend Exa' });
 // Botão fino: 1 px de contorno, raio 4, enche ao passar o rato (estado de hover, gratuito).
 const fino = (etq, url, sobreEscuro = true) => botao(etq, url, {
   contorno: true, raio: 4, cor: sobreEscuro ? E.claro : E.escuro,
@@ -115,7 +128,7 @@ As secções:
 ```js
 // 1 · Herói à porsche: título em baixo à esquerda (flex_justify_content sobrepõe o centro de alturaMinima).
 seccao([
-  t('<promessa da página>', 'h1', { tamanho: 88, cor: E.claro, extra: { typography_font_size_mobile: px(36) } }),
+  titulo('<promessa da página>', 'h1', { cor: E.claro }),
   texto('<uma frase de apoio>', { cor: E.claro, tamanho: 19 }),
   linha([cheio('<acção principal>', '<destino>'), fino('<acção secundária>', '<destino>')], { espacamento: 12, extra: { flex_direction_mobile: 'column' } }),
 ], { ...SECCAO, imagemFundo: '<fotografia do cliente>', sobreposicao: 'rgba(0,0,0,0.5)', alturaMinima: 760, fundo: E.escuro, extra: { flex_justify_content: 'flex-end' } }),
@@ -127,9 +140,9 @@ seccao([imagem('<fotografia do cliente>', '<texto alternativo>', { raio: 0, altu
 // 4 · Ficha técnica: só com números reais do cliente.
 seccao([
   linha([
-    coluna([filete(), t('<valor>', 'p', { tamanho: 56, cor: E.claro }), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
-    coluna([filete(), t('<valor>', 'p', { tamanho: 56, cor: E.claro }), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
-    coluna([filete(), t('<valor>', 'p', { tamanho: 56, cor: E.claro }), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
+    coluna([filete(), valor('<valor>'), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
+    coluna([filete(), valor('<valor>'), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
+    coluna([filete(), valor('<valor>'), texto('<legenda>', { tamanho: 15, cor: E.secEscuro })], 30),
   ], { espacamento: 40 }),
 ], { ...SECCAO, fundo: E.escuro }),
 ```
@@ -138,7 +151,7 @@ Os textos entre `< >` vêm do briefing ou do texto aprovado do cliente; o que fa
 
 ## O mesmo estilo num cliente
 
-Com a marca da MIMUS (`principal` #1D1D1D, `acento` #FF8A8B, Montserrat):
+Com a marca de um cliente (`principal` #1D1D1D, `acento` #FF8A8B, Montserrat):
 
 - **Escuro** passa a #1D1D1D (branco por cima: 16,86:1; #A1A3AB por cima: 6,70:1).
 - **Botão principal em fundo escuro:** o acento #FF8A8B com texto #1D1D1D (7,43:1); o botão contra o fundo escuro também dá 7,43:1, acima dos 3:1 pedidos. Em fundo claro o acento não chega (2,27:1 sobre branco): lá o botão principal é escuro.
@@ -146,4 +159,4 @@ Com a marca da MIMUS (`principal` #1D1D1D, `acento` #FF8A8B, Montserrat):
 
 ## Na Shopify
 
-O mesmo estilo numa loja guia só o texto e as imagens: títulos curtos e directos, uma acção por página, fotografias grandes de produto em 16:9 com luz de estúdio, texto alternativo a descrever o produto. Letras, cores, raios e botões vivem no tema.
+Nas páginas com desenho do `/shopify-pagina` o estilo aplica-se todo, com as receitas na forma dos blocos (`css` e `cssTelemovel` no lugar do `extra`; `widget`, `px` e `caixa` só existem no Elementor). Nas páginas de texto e nos artigos, as letras, as cores e os botões são os do tema, e o estilo guia o texto e as imagens: títulos curtos e directos, uma acção por página, fotografias grandes de produto em 16:9 com luz de estúdio, texto alternativo a descrever o produto.

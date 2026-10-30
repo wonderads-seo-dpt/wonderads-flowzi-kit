@@ -75,28 +75,37 @@ async function tranca(caminho, method, body) {
     throw new Error(`Bloqueado: ${identidade(site)} parece o site real (produção). Para escrever lá rascunhos, a pessoa volta a ligar o cliente (node scripts/ligacao.mjs) e confirma que é o site real.`);
   }
   const limpo = caminho.replace(/^\//, '').replace(/\?.*$/, '');
-  if (method === 'DELETE' && limpo === 'elementor/v1/cache') return;
+  // No WordPress, um ?_method= ou um ?rest_route= no endereço muda o pedido que chega (um POST passa a DELETE, ou vai
+  // para outra rota). Nenhuma gravação do kit leva parâmetros no endereço.
+  const comParametros = caminho.includes('?');
+  if (method === 'DELETE' && limpo === 'elementor/v1/cache' && !comParametros) return;
   if (method === 'DELETE') throw new Error('Bloqueado: o kit não apaga páginas nem artigos. Apagar faz-se à mão, no WordPress.');
+  if (comParametros) throw new Error(`Bloqueado: o kit não grava em endereços com parâmetros (${caminho}).`);
   const pagina = limpo.match(/^wp\/v2\/(pages|posts|elementor_library)(?:\/(\d+))?$/);
   if (method !== 'POST' || !pagina) {
     throw new Error(`Bloqueado: o kit não faz ${method} em ${limpo}. Só cria e altera páginas, artigos e modelos do Elementor em rascunho.`);
   }
-  // Modelos do Elementor (cabeçalho, rodapé...): só sem condições de exibição, para um rascunho nunca aparecer no site.
-  // Publicar e escolher onde aparece faz-se à mão, no Theme Builder (decisão de 15/10/2026).
-  if (pagina[1] === 'elementor_library') {
-    const condicoes = body?.meta?._elementor_conditions;
-    if (condicoes !== undefined && !(Array.isArray(condicoes) && condicoes.length === 0)) {
-      throw new Error('Bloqueado: o kit não grava condições de exibição em modelos do Elementor. Escolher onde o modelo aparece faz-se à mão, no Theme Builder.');
-    }
-  }
   if (body?.status !== 'draft') {
     throw new Error(`Bloqueado: tentativa de gravar a página com estado "${body?.status ?? 'sem estado'}". O kit só grava em rascunho.`);
+  }
+  // Modelos do Elementor (cabeçalho, rodapé, secções guardadas): só cópias com o conteúdo. Onde aparecem no site
+  // (as condições) e o Kit do Elementor (cores e letras de todo o site) decide-os uma pessoa, no Elementor.
+  const modelo = pagina[1] === 'elementor_library';
+  if (modelo) {
+    const permitidas = ['_elementor_edit_mode', '_elementor_template_type', '_elementor_data', '_elementor_page_settings'];
+    const outras = Object.keys(body.meta || {}).filter((k) => !permitidas.includes(k));
+    const campos = Object.keys(body).filter((k) => !['title', 'status', 'meta'].includes(k));
+    if (outras.length || campos.length) {
+      throw new Error(`Bloqueado: num modelo do Elementor o kit só grava o título e o conteúdo, nunca ${[...outras, ...campos].join(', ')}. As condições de apresentação (onde aparece) decide-as uma pessoa, no Elementor.`);
+    }
+    if (body.meta?._elementor_template_type === 'kit') throw new Error('Bloqueado: o Kit do Elementor (cores e letras de todo o site) não se altera pelo kit.');
   }
   if (pagina[2]) {
     const actual = await wp(`wp/v2/${pagina[1]}/${pagina[2]}?context=edit`);
     if (actual.status !== 'draft') {
       throw new Error(`Bloqueado: o conteúdo ${pagina[2]} está em "${actual.status}". O kit não altera nada que não esteja em rascunho.`);
     }
+    if (modelo && actual.meta?._elementor_template_type === 'kit') throw new Error('Bloqueado: o Kit do Elementor (cores e letras de todo o site) não se altera pelo kit.');
   }
 }
 
@@ -248,6 +257,32 @@ export async function paginaEmEdicao(ref) {
   throw new Error(`Não encontrei nenhuma página nem artigo com "${texto}".`);
 }
 
+// Os modelos do Elementor (cabeçalho, rodapé, secções guardadas, popups) são do tipo elementor_library, e só se
+// encontram pelo número (node scripts/listar.mjs --modelos). O Elementor só os mostra pela API a administradores.
+export const semAcessoModelos = `O Elementor deste site só mostra os modelos (cabeçalho, rodapé, secções guardadas) pela API a administradores,
+  e esta ligação é de um Editor, como o kit recomenda. Não é um erro do kit e não se contorna.
+  - Num staging (nunca no site real), quem gere o site pode criar uma password de aplicação de um administrador e
+    voltar-se a ligar o cliente com ela (/wp-ligar). O kit continua a gravar só rascunhos e nunca mexe no modelo original.
+  - Sem isso, faz-se a secção nova numa página em rascunho para o cliente aprovar, e quem gere o site passa-a para o
+    modelo, no Elementor.`;
+export async function modeloEmEdicao(id) {
+  if (!/^\d+$/.test(String(id).trim())) throw new Error(`Um modelo do Elementor procura-se pelo número (node scripts/listar.mjs --modelos), não por "${id}".`);
+  try {
+    return await wp(`wp/v2/elementor_library/${String(id).trim()}?context=edit`);
+  } catch (e) {
+    if (e.status === 401 || e.status === 403) throw Object.assign(new Error(`Não encontrei nenhuma página nem artigo com o número ${id}. Se for um modelo do Elementor:\n  ${semAcessoModelos}`), { status: e.status });
+    if (e.status === 404) throw new Error(`Não encontrei nenhuma página, artigo nem modelo do Elementor com o número ${id}.`);
+    throw e;
+  }
+}
+const TIPOS_MODELO = {
+  header: 'cabeçalho', footer: 'rodapé', section: 'secção', container: 'contentor', page: 'página', popup: 'popup',
+  single: 'página individual', 'single-post': 'artigo individual', 'single-page': 'página individual', archive: 'arquivo',
+  'search-results': 'resultados de pesquisa', 'error-404': 'página 404', 'loop-item': 'item de loop', kit: 'Kit do Elementor',
+  product: 'produto', 'product-archive': 'arquivo de produtos', 'landing-page': 'landing page',
+};
+export const nomeDoModelo = (tipo) => TIPOS_MODELO[tipo] || tipo || 'sem tipo';
+
 // Cada ficheiro de página ou artigo guarda ao lado (<ficheiro>.wp.json) o número com que ficou em cada site.
 // Assim, voltar a gravar o mesmo ficheiro actualiza o rascunho em vez de criar outro.
 export function registo(ficheiro) {
@@ -269,7 +304,7 @@ export function lerElementor(pagina) {
 export function guardarCopia(pagina) {
   const base = pasta || raiz;
   mkdirSync(`${base}/copias`, { recursive: true });
-  const ficheiro = `${base}/copias/${pagina.type === 'post' ? 'artigo' : 'pagina'}-${pagina.id}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  const ficheiro = `${base}/copias/${pagina.type === 'post' ? 'artigo' : pagina.type === 'elementor_library' ? 'modelo' : 'pagina'}-${pagina.id}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
   writeFileSync(ficheiro, JSON.stringify({
     id: pagina.id, titulo: pagina.title?.raw, estado: pagina.status, template: pagina.template,
     meta: pagina.meta, conteudo: pagina.content?.raw,

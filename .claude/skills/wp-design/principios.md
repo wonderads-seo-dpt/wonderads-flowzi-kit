@@ -16,8 +16,8 @@ O herói abre com o que é mais característico desse mundo: uma fotografia real
 - Usar as letras da marca (`marca.json`, `design.md`), com uma escala clara: o h1 bem maior do que o h2, o h2 bem maior do que o texto.
 - Linhas de texto com menos de 80 caracteres: secções de leitura com `estreita: true` ou colunas.
 - Evitar, porque denunciam uma página gerada:
-  - realçar uma só palavra do título com outra cor, itálico ou negrito;
-  - etiquetas em MAIÚSCULAS espaçadas por cima de cada título;
+  - realçar uma palavra em todos os títulos só porque se pode (o `destaque` de `titulos` usa-se onde a palavra realçada diz alguma coisa);
+  - um `rotulo` em MAIÚSCULAS por cima de cada título (um ou dois na página, onde orientam);
   - etiquetas a mais por cima do conteúdo.
 
 ## Estrutura

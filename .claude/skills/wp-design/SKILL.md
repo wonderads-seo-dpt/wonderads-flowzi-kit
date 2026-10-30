@@ -34,10 +34,10 @@ Ler `.claude/skills/wp-design/principios.md`. Depois escrever `clientes/<cliente
 3. **Botões:** cor, raio (redondo ou quadrado), enchimento, peso da letra, e se há botão de contorno.
 4. **Ritmo:** largura do conteúdo, espaço entre secções, fundos que alternam (branco, cinzento claro, foto).
 5. **Padrões de secção que se repetem**, cada um com a receita em peças do kit, pronta a copiar. Por exemplo:
-   `seccao([...], { imagemFundo: '<url>', sobreposicao: 'rgba(0,0,0,0.45)', alturaMinima: 640, alinhar: 'center' })` com `titulo(..., 'h1', { cor: '#FFFFFF', tamanho: 72, peso: 300, alinhar: 'center' })`.
+   `seccao([...], { imagemFundo: '<url>', sobreposicao: 'rgba(0,0,0,0.45)', alturaMinima: 640, alinhar: 'center' })` com `titulo(..., 'h1', { cor: '#FFFFFF', alinhar: 'center' })`, e o h1 a 72 px e peso 300 em `titulos` no `marca.json`, nunca na chamada.
 6. **O que este site nunca faz** (por exemplo: cantos rectos, sombras, mais de um botão por secção).
 
-Mostrar o guia à pessoa. Se as cores ou as letras forem diferentes das do `marca.json`, propor a correcção e só gravar `marca.json` depois de a pessoa confirmar.
+Mostrar o guia à pessoa. Se as cores ou as letras forem diferentes das do `marca.json`, propor a correcção e só gravar `marca.json` depois de a pessoa confirmar. As letras do h1, do h2, do h3 e do rótulo (e a forma como o site realça palavras num título) propõem-se também como `titulos` no `marca.json` (`.claude/skills/design/titulos.md`), para as páginas novas saírem com os títulos do site.
 
 ## 4 · Provar
 

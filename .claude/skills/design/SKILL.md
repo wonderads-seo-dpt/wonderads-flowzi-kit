@@ -5,7 +5,7 @@ description: >
   limites, vê a referência (Claude in Chrome ou prints) e cria um ESTILO com nome (letras, escala,
   paleta com contraste, espaços, raios, imagens, ritmo e assinaturas feitas com widgets gratuitos),
   gravado em clientes/<cliente>/estilos/<nome>.md, para o /wp-landing e o /wp-replicar aplicarem.
-  Na Shopify serve de guia para o texto e as imagens. Gatilhos: "design", "estilo", "direcção de
+  Na Shopify aplica-se às páginas com desenho. Gatilhos: "design", "estilo", "direcção de
   arte", "quero algo mais moderno", "mais futurista", "mais profissional", "está com ar amador",
   "/design".
 ---
@@ -39,10 +39,11 @@ Escrever para si, antes de decidir, o que se viu: letras (família, peso, largur
 ## 4 · Decidir
 
 - **A marca ganha à referência.** As cores e as letras do `marca.json` entram nos papéis do estilo (fundo escuro, texto, botão). Se o estilo pedir outras, propor e dizer como ficam aplicadas: só nas páginas deste estilo (com `extra` nas peças) ou na marca toda (mudar `marca.json`, só com o sim da pessoa).
+- **Títulos:** um estilo por nível (h1, h2, h3 e rótulo) e um destaque para as palavras realçadas, como em `titulos.md`. Nunca títulos diferentes no mesmo nível.
 - **Letras:** só Google Fonts gratuitas, um par concreto (títulos e corpo) com pesos. Se a referência usar uma letra paga ou exclusiva, a Google Font mais parecida, dita pelo nome.
 - **Contraste, sem excepção:** texto a 4,5:1 ou mais sobre o fundo onde está, botões e ícones a 3:1. Calcular cada par com a fórmula da WCAG e escrever o número na tabela da paleta. Texto sobre fotografia leva sobreposição (`rgba(0,0,0,0.45)` ou mais) e confirma-se nos prints. Nunca transparência no texto.
-- **Assinaturas:** três a cinco decisões que tornam o estilo reconhecível, cada uma feita com peças do kit e widgets gratuitos do Elementor. Se uma assinatura precisar de widget pago, CSS ou animação, não é assinatura: vai para "O que fica de fora".
-- **Animações de entrada só nos widgets**, nunca nas secções (containers), para o fundo nunca ficar invisível. Se o estilo as usar, escrever em que widgets entram e qual. Fora isso, movimento só como resposta à pessoa (a cor do botão ao passar o rato, abrir uma pergunta).
+- **Assinaturas:** três a cinco decisões que tornam o estilo reconhecível, cada uma feita com peças do kit e widgets gratuitos do Elementor (em blocos, com as opções `css` das peças). Se uma assinatura precisar de widget pago, código colado à mão ou animação, não é assinatura: vai para "O que fica de fora".
+- **Animações de entrada só nos widgets**, nunca nas secções (containers), para o fundo nunca ficar invisível. Se o estilo as usar, escrever em que widgets entram e qual. Fora isso, movimento só como resposta à pessoa (a cor do botão ao passar o rato, abrir uma pergunta). Ver "Com aviso".
 - **Simplificar:** de uma referência complexa ficam as três ou quatro coisas que fazem a sensação. Rever o plano contra os sinais de página feita por IA do `principios.md` e trocar o que sairia igual para qualquer cliente.
 - **As fotografias decidem o estilo.** Um estilo de fotografia grande só funciona com fotografias boas do cliente (`clientes/<cliente>/imagens/` ou o site dele). Se não houver, dizer isso e propor uma versão em que a tipografia e o espaço fazem o trabalho.
 
@@ -56,7 +57,8 @@ Estado: proposto (ou aprovado em DD/MM/AAAA) · Referência: <endereço> · Clie
 
 ## A ideia            Uma frase: para quem, que sensação, que acção.
 ## Letras             Par Google Fonts, pesos, espaçamento entre letras, maiúsculas ou não.
-## Escala             h1, h2, h3, texto, texto pequeno, botão: px em computador e em telemóvel.
+## Escala             h1, h2, h3, rótulo, texto, texto pequeno, botão: px em computador e em telemóvel.
+## Títulos            O bloco "titulos" para o marca.json (titulos.md): h1, h2, h3, rotulo e destaque.
 ## Paleta             Tabela: papel · hex · sobre que fundo · contraste calculado.
 ## Espaço             Largura do conteúdo, topo e base das secções, espaço entre elementos e colunas.
 ## Forma              Raios (botões, cartões, imagens), bordas, sombras.
@@ -67,7 +69,7 @@ Estado: proposto (ou aprovado em DD/MM/AAAA) · Referência: <endereço> · Clie
 ## O que fica de fora O que a referência tem e este estilo não leva, e porquê.
 ```
 
-As receitas usam as peças de `scripts/elementor.mjs` (`seccao` com `imagemFundo`, `sobreposicao`, `alturaMinima`, `largura`; `titulo` com `tamanho` e `peso`; `botao` com `contorno` e `raio`; `cartao` com `sombra`; `extra` para definições do Elementor que as opções não cobrem). O `titulo` já reduz sozinho no telemóvel (cerca de 64%, nunca abaixo de 20 px) e o `texto` tira 2 px; só se escreve o tamanho de telemóvel quando tiver de ser outro. O exemplo trabalhado está em `exemplos.md`.
+As receitas usam as peças de `scripts/elementor.mjs` (`seccao` com `imagemFundo`, `sobreposicao`, `alturaMinima`, `largura`; `titulo` só com `cor` e `alinhar`; `botao` com `contorno` e `raio`; `cartao` com `sombra`; `extra` para definições do Elementor que as opções não cobrem). Num site sem Elementor, as mesmas peças de `scripts/blocos.mjs`, com `css: { ... }` e `cssTelemovel` no lugar do `extra`: escrever as duas formas na receita quando o cliente tiver sites dos dois tipos. Nas receitas, os títulos vão sem tamanho nem peso (vêm de `titulos`). O título reduz sozinho no telemóvel (cerca de 64%, nunca abaixo de 20 px) e o `texto` tira 2 px; só se escreve o `telemovel` do nível quando tiver de ser outro. O exemplo trabalhado está em `exemplos.md`.
 
 ## 6 · Mostrar e aplicar
 
@@ -77,17 +79,11 @@ Mostrar à pessoa:
 2. A tabela de decisões, uma linha por decisão: **Decisão · Escolha · Porquê** (letras, escala, paleta, espaço, forma, imagens, ritmo, cada assinatura, o que fica de fora).
 3. O caminho do ficheiro gravado.
 
-Esperar pelo "sim" ou pelas mudanças. Com o sim, mudar o `Estado:` para `aprovado em DD/MM/AAAA` e oferecer o passo seguinte: `/wp-landing` para uma página nova com este estilo, ou `/wp-replicar` para seguir também a estrutura da referência, dizendo o nome do estilo. Se a pessoa corrigir o estilo, anotar em `clientes/<cliente>/notas/correcoes.md` (regra 9 do `CLAUDE.md`).
+Esperar pelo "sim" ou pelas mudanças. Com o sim, mudar o `Estado:` para `aprovado em DD/MM/AAAA`, gravar o bloco da secção Títulos em `titulos` no `marca.json` do cliente, com `"estilo": "<nome>"` (dizer que passa a valer para todas as páginas novas deste cliente), e correr `node scripts/titulos.mjs --ver` para confirmar que ficou certo e ver os avisos de contraste. Depois oferecer o passo seguinte: `/wp-landing` para uma página nova com este estilo, ou `/wp-replicar` para seguir também a estrutura da referência, dizendo o nome do estilo. Se a pessoa corrigir o estilo, anotar em `clientes/<cliente>/notas/correcoes.md` (regra 10 do `CLAUDE.md`).
 
 ## Na Shopify
 
-Numa loja, o desenho vive no tema e o kit não mexe em temas: as páginas do kit são texto, imagens e botões dentro do modelo de página. Dizer isto à pessoa antes das perguntas. O estilo faz-se na mesma, e serve de guia para:
-
-- **o texto:** títulos curtos, frases de abertura, etiquetas dos botões, a ordem dos blocos;
-- **as imagens:** que fotografias, proporção, recorte e luz, e o texto alternativo;
-- **o que a pessoa pode decidir no editor de temas, à mão e fora do kit:** letras e cores do tema, que têm efeito na loja real.
-
-Nas secções Escala, Forma e Assinaturas, escrever "vive no tema" em vez das receitas do Elementor. Aplicar com `/shopify-pagina` ou `/shopify-artigo`.
+As páginas com desenho do `/shopify-pagina` usam as peças dos blocos: as receitas em blocos do estilo aplicam-se tal e qual. As páginas de texto e os artigos ficam com o desenho do tema; aí o estilo guia o texto (títulos curtos, frases de abertura, etiquetas dos botões) e as imagens (fotografias, proporção, recorte, luz, texto alternativo). Aplicar com `/shopify-pagina` ou `/shopify-artigo`.
 
 ## Com aviso, quando a pessoa o pede
 

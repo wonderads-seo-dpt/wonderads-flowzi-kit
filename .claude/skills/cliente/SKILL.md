@@ -4,7 +4,7 @@ description: >
   Mostra em que cliente se está a trabalhar, muda de cliente ou cria um cliente novo. Cada
   cliente tem a sua pasta em clientes/, com a marca, as regras e a ligação dele, e só um está
   activo de cada vez. Gatilhos: "muda para o cliente", "cliente novo", "em que cliente estou",
-  "trabalhar na MIMUS", "/cliente".
+  "trabalhar na clínica", "/cliente".
 ---
 
 # Cliente
@@ -23,7 +23,7 @@ Correr `node scripts/cliente.mjs`. Mostrar a lista e qual está activo.
 
 ## Criar
 
-1. Perguntar o nome comercial. Propor o nome curto em minúsculas, sem espaços nem acentos ("Clínicas Dentárias FA" fica `clinica-fa`) e confirmar.
+1. Perguntar o nome comercial. Propor o nome curto em minúsculas, sem espaços nem acentos ("Clínica Dentária Sorriso" fica `clinica-sorriso`) e confirmar.
 2. Correr `node scripts/cliente.mjs --novo <nome> "<Nome comercial>"`. Cria `clientes/<nome>/` a partir do modelo e passa a ser o cliente activo.
 3. Explicar o que ficou na pasta, em quatro linhas:
    - `CLAUDE.md`: a ficha do cliente, a marca, o tom e as regras aprendidas;

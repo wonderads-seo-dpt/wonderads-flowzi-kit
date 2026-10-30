@@ -39,7 +39,13 @@ export default {
 };
 ```
 
+As imagens seguem as regras do `/shopify-pagina` (secção Imagens): as de `imagens/` sobem e precisam de `write_files` na app; as que já estão na loja (`cdn.shopify.com`) usam-se como estão; da Pixabay, só o ficheiro descarregado, nunca o endereço de lá.
+
 As perguntas frequentes entram no fim do texto, com título "Perguntas frequentes". A marcação FAQ para o Google depende do tema ou de uma app de SEO da loja: dizer à pessoa para confirmar.
+
+## SEO
+
+Página ou artigo de SEO: seguir `/seo` e pôr a palavra-chave em `seo: { titulo, descricao, chave }`. O rever não lê a loja: antes de gravar, verificar com a lista "Shopify" do `/seo`.
 
 ## Gravar
 
@@ -48,6 +54,8 @@ node scripts/shopify-artigo.mjs clientes/<cliente>/artigos/<handle>.mjs
 ```
 
 O Claude Code pede licença com o aviso de que vai gravar na loja real, escondido. O artigo fica escondido. Para refazer depois de um reparo, editar o mesmo ficheiro e correr o mesmo comando: actualiza o mesmo artigo enquanto estiver escondido.
+
+Depois de gravar, fica o documento para o cliente validar o texto em `clientes/<cliente>/validacao/`. Para o Drive: `node scripts/documento.mjs clientes/<cliente>/validacao/<ficheiro>.docx --drive`.
 
 ## Sectores regulados
 

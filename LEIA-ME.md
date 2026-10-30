@@ -198,6 +198,7 @@ flowzi-wonderads-kit/
       design.md       o desenho do site do cliente, feito pelo /wp-design
       referencias/    os prints e as medidas dos sites estudados
       levantamento.md o que o /wp-ligar encontrou no site
+      validacao/      os documentos para o cliente validar o texto
   scripts/            o que fala com o WordPress. Não se mexe
   treino/             o WordPress de treino
 ```
@@ -210,16 +211,18 @@ flowzi-wonderads-kit/
 |---|---|
 | `/comecar` | Primeira vez: confirma a máquina, explica a pasta, levanta o WordPress de treino |
 | `/cliente` | Mostra o cliente activo, muda de cliente ou cria um novo |
-| `/actualizar` | Instala a versão nova do kit que a Flowzi enviou, sem tocar nos clientes |
+| `/actualizar` | Instala a versão nova do kit (do GitHub ou do zip da Flowzi), sem tocar nos clientes |
+| `/contribuir` | Propõe à Flowzi uma melhoria vossa (script, skill ou regra), para ficar para todos |
 | `/wp-ligar` | Liga o cliente ao staging dele e lê a versão, o builder e a marca |
 | `/wp-briefing` | Faz as perguntas certas antes de uma página, quando o pedido vem vago |
-| `/wp-landing` | Faz uma página nova em Elementor e grava em rascunho |
+| `/wp-landing` | Faz uma página nova em Elementor (ou em blocos, num site sem Elementor) e grava em rascunho |
 | `/wp-seccao` | Redesenha uma secção de uma página existente, sem tocar no original |
 | `/wp-design` | Estuda o desenho do site do cliente (prints e medidas) e grava-o em `design.md`, para as páginas novas saírem iguais ao resto do site |
 | `/design` | Faz de director de arte: quatro perguntas curtas, vê uma referência de que se gosta e cria um estilo com nome (letras, cores, espaços, imagens) que o `/wp-landing` e o `/wp-replicar` seguem |
 | `/wp-replicar` | Dá-se o endereço de uma página de que se gosta; o Claude vê-a, mede-a e faz uma página do cliente com aquele desenho, com o texto e as fotografias do cliente |
 | `/wp-artigo` | Escreve um artigo de blogue e grava-o em rascunho, com resumo e perguntas frequentes |
 | `/wp-rever` | Revê a página antes de alguém a publicar |
+| `/seo` | As regras de SEO da agência: palavra-chave, extensão, títulos sem saltos, título e descrição para o Google |
 | `/shopify-ligar` | Liga o cliente à loja Shopify dele e lê o plano, as permissões e os blogues |
 | `/shopify-pagina` | Escreve uma página e grava-a escondida na loja |
 | `/shopify-artigo` | Escreve um artigo e grava-o escondido no blogue da loja, com resumo e perguntas frequentes |
@@ -256,9 +259,9 @@ O `/comecar` deixa um WordPress com Elementor a correr só neste computador, em 
 
 ## Quando o Claude pede licença
 
-O Claude pergunta, em inglês, antes de escrever ficheiros ou de gravar no WordPress ("Do you want to proceed?"). Ler o que ele vai fazer e escolher "1. Yes". Se a acção for publicar, apagar ou mexer noutra coisa que não a página pedida, escolher "No" e avisar a Flowzi. Num cliente ligado ao site real, cada gravação vem com um "Aviso do kit" que diz o endereço: confirmar que é mesmo esse site. Evitar "Yes, and don't ask again" nas primeiras semanas.
+O Claude pergunta, em inglês, antes de escrever ficheiros ou de gravar no WordPress ("Do you want to proceed?"). Ler o que ele vai fazer e escolher "1. Yes". Se a acção for publicar ou apagar sem o terem pedido (na loja, só pelo /shopify-publicar, depois do vosso sim), ou mexer noutra coisa que não a página pedida, escolher "No" e avisar a Flowzi. Num cliente ligado ao site real, cada gravação vem com um "Aviso do kit" que diz o endereço: confirmar que é mesmo esse site. Evitar "Yes, and don't ask again" nas primeiras semanas.
 
-Algumas acções vêm com um "Aviso do kit" antes da pergunta: mudar as regras, os scripts ou as skills do kit, correr outros programas, apagar pastas. Lê-se o aviso e confirma-se só se for mesmo isso que se quer. A única coisa que o kit não deixa fazer é ler as passwords dos clientes (os `.env`).
+Algumas acções vêm com um "Aviso do kit" antes da pergunta: mudar as regras, os scripts ou as skills do kit, correr outros programas, apagar pastas. Lê-se o aviso e confirma-se só se for mesmo isso que se quer. O que o kit não deixa fazer de todo é ler ou mudar pela shell as passwords dos clientes (os `.env`) e usar o Shopify CLI.
 
 ## Depois de alterar uma página
 
@@ -288,7 +291,7 @@ Os rascunhos não aparecem aos visitantes, mas aparecem no wp-admin do cliente. 
 
 ## Sites sem Elementor
 
-O `/wp-ligar` diz que construtor o site usa. Num site sem Elementor, o Claude faz as páginas em blocos do WordPress (o editor normal, Gutenberg), com as mesmas peças e sempre em rascunho; os artigos já eram assim. As letras são as do tema do site, e a página edita-se no editor normal do WordPress. Em sites feitos em Divi, Bricks, Oxygen ou Beaver Builder, as páginas novas em blocos abrem no editor normal, não nesse construtor.
+O `/wp-ligar` diz que construtor o site usa. Num site sem Elementor, o Claude faz as páginas em blocos do WordPress (o editor normal, Gutenberg), com as mesmas peças e sempre em rascunho; os artigos já eram assim. O desenho sai como no Elementor (as letras da marca, os ícones, os tamanhos de telemóvel), e a página edita-se no editor normal do WordPress. O editor mostra-a mais simples: para a ver como fica, usar a pré-visualização. Em sites feitos em Divi, Bricks, Oxygen ou Beaver Builder, as páginas novas em blocos abrem no editor normal, não nesse construtor.
 
 ## Fotografias da Pixabay
 
@@ -302,13 +305,13 @@ O Claude mostra as opções; as escolhidas ficam em `clientes/<cliente>/imagens/
 
 ## Clientes em Shopify
 
-Numa loja Shopify não há staging para páginas e artigos: o kit grava na loja real, sempre **escondido**. Ninguém de fora vê o que está escondido, (o painel chama "Oculto" ao que o kit chama escondido). Para publicar, esconder ou apagar, `/shopify-publicar`: o Claude diz antes que página, em que loja e o que vai acontecer, e só avança depois do vosso sim, com um "Aviso do kit". Apagar guarda primeiro uma cópia em `copias/`, porque a Shopify não tem reciclagem. Também se pode publicar à mão, no painel: Visibilidade → Visível.
+Numa loja Shopify não há staging para páginas e artigos: o kit grava na loja real, sempre **escondido**. Ninguém de fora vê o que está escondido (o painel chama "Oculto" ao que o kit chama escondido). Para publicar, esconder ou apagar, `/shopify-publicar`: o Claude diz antes que página, em que loja e o que vai acontecer, e só avança depois do vosso sim, com um "Aviso do kit". Apagar guarda primeiro uma cópia em `copias/`, porque a Shopify não tem reciclagem. Também se pode publicar à mão, no painel: Visibilidade → Visível.
 
 1. O dono da loja cria uma app no Dev Dashboard da Shopify (dev.shopify.com), com as permissões `write_content` e `write_files` e mais nenhuma, instala-a na loja e envia o Client ID e o Client secret por um canal seguro. O `/shopify-ligar` tem o texto pronto a enviar-lhe.
 2. `/cliente` (criar o cliente) e `/shopify-ligar`. A chave grava-se num terminal à parte, com `node scripts/ligacao.mjs` e o endereço `xxx.myshopify.com` da loja.
 3. Trabalhar: `/shopify-pagina` e `/shopify-artigo`.
 
-O que o kit faz na Shopify é texto, imagens e botões dentro do modelo do tema da loja. Landing pages com secções desenhadas fazem-se, por agora, no editor de temas da Shopify.
+O kit faz dois tipos de página na Shopify: de texto, dentro do modelo do tema, e com desenho (landing pages com herói, faixas, colunas e cartões, com o desenho dentro da própria página). As páginas com desenho mudam-se sempre pelo kit: não se editam no editor de texto do painel, que pode estragar o desenho ao guardar. Para as imagens de `imagens/` subirem, a app precisa de `write_files`; se faltar, o dono da loja junta-a no Dev Dashboard, carrega em Release e volta a instalar a app.
 
 ## Cliente sem staging: uma cópia no computador
 
@@ -347,11 +350,29 @@ No browser (Claude in Chrome), o Claude usa a sessão de quem lá está. Por iss
 
 O `.env` de cada cliente guarda a ligação ao site. Não se partilha, nem no chat do Claude, nem no WhatsApp.
 
-## Actualizar o kit
+## Títulos iguais em toda a página
 
-Quando a Flowzi enviar uma versão nova, guarda-se o zip nas Transferências sem lhe mudar o nome (no WhatsApp: botão direito no ficheiro → Guardar como → Transferências) e, no Claude, escreve-se `/actualizar`. O Claude encontra o zip, mostra a versão nova e a instalada e, com a confirmação, instala: actualiza as regras, as skills, os scripts e a guarda. Os clientes, as ligações e as páginas ficam como estão. No fim, sair do Claude (`/exit`) e voltar a entrar.
+O estilo dos títulos de cada cliente fica num só sítio: `titulos`, no `marca.json`. Para o mudar, pede-se ao Claude (por exemplo, "os h2 maiores e mais finos"): ele confirma, grava e volta a gravar a página. Numa página que já existe, `node scripts/titulos.mjs --ver <página>` só mostra; `node scripts/titulos.mjs <página>` cria uma cópia em rascunho com os títulos iguais, e o original fica intacto.
 
-O kit só instala zips assinados pela Flowzi. Se disser que o zip não é assinado, ou que não bate certo, não se instala: pede-se o zip oficial à Flowzi.
+## Enviar o texto ao cliente para validar
+
+Cada página ou artigo gravado deixa um documento do Word só com o texto, pela ordem da página, em `clientes/<cliente>/validacao/<página>-<data>.docx`. Leva os títulos com os níveis do Word, os parágrafos, as listas, "[Botão] texto → destino", "[Imagem] texto alternativo" e as perguntas frequentes. No topo vão o endereço, o título e a descrição para o Google.
+
+Para o pôr no Drive: `node scripts/documento.mjs <número> --drive`. Com o Google Drive para computador instalado, vai para `Validação de textos/<cliente>/` (no Windows, na unidade G:, em "My Drive" ou "O meu disco"). Sem ele, o kit explica como o arrastar em drive.google.com. No Drive, abrir com o Google Docs (Ficheiro → Guardar como Documentos Google, para o converter) e partilhar com o cliente com permissão para comentar.
+
+## Actualizar e propor melhorias
+
+O kit vive no GitHub, em https://github.com/wonderads-seo-dpt/wonderads-flowzi-kit. Não é preciso conta nem instalar nada: o Claude vê lá as versões sozinho. Cada versão sai lá, assinada pela Flowzi, e só a Flowzi publica.
+
+**Actualizar.** Ao abrir o Claude, ele avisa quando há uma versão nova e diz o que traz; a barra de baixo mostra `versão nova: /actualizar`. Escreve-se `/actualizar`: o Claude vai buscar a versão, mostra a nova e a instalada e, com a confirmação, instala. Os clientes, as ligações e as páginas ficam como estão. No fim, sair do Claude (`/exit`) e voltar a entrar.
+
+Se o Claude disser que não consegue ver o GitHub (sem rede, por exemplo), mostra o link das Releases. Abri-lo no browser, descarregar o `flowzi-wonderads-kit-<versão>.zip` (em Assets, não o "Source code") para as Transferências, sem lhe mudar o nome, e voltar a escrever `/actualizar`.
+
+O kit só instala versões assinadas pela Flowzi. Se disser que o zip não é assinado, ou que não bate certo, não se instala: descarrega-se outra vez do GitHub ou pede-se o zip à Flowzi. Um zip que a Flowzi envie por email ou WhatsApp continua a servir: guarda-se nas Transferências e escreve-se `/actualizar`.
+
+**Propor melhorias.** Um script que poupa tempo, uma skill que serve vários clientes, uma regra que evita um erro: escreve-se `/contribuir`. O Claude mostra o que mudou no vosso kit, escreve convosco o que é, porquê e como testar, e faz um zip da proposta nas Transferências, sem passwords nem nada dos clientes. Depois, manda-se esse zip ao técnico da equipa, por WhatsApp ou por email. O técnico experimenta-a e, com a conta do repositório e o GitHub CLI, faz `/contribuir`, que abre um Pull Request (o Claude pergunta antes).
+
+A Flowzi testa em Windows e em Mac e, se a proposta entrar, publica uma versão nova, que todos recebem com `/actualizar`. Até lá, a mudança fica só no vosso kit, e a actualização seguinte substitui-a pela versão oficial: um script novo que não entrou desaparece do kit, mas fica no zip da proposta.
 
 **Só da primeira vez**, num kit anterior a 15/10/2026 (que ainda não tem o `/actualizar`):
 

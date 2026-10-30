@@ -15,6 +15,7 @@ description: >
 2. Ler `clientes/<cliente>/CLAUDE.md`, sobretudo o tom de voz, o que nunca dizer e as regras aprendidas.
 3. Se houver conteúdo aprovado do cliente (texto do site, documentos na pasta), usar esses factos. **Nunca inventar números, preços, prazos, nomes de médicos ou resultados clínicos.** O que não estiver escrito fica `[por confirmar]` no texto e é dito à pessoa no fim.
 4. Perguntar só o que faltar, no máximo três perguntas: o tema exacto, para quem é, que acção se quer no fim.
+5. Ler `/seo`. A palavra-chave escolhe-se com a pessoa e vai em `seo: { chave: '...' }` no ficheiro do artigo; o artigo tem pelo menos 1 500 palavras, salvo outro valor no `seo.json` do cliente.
 
 ## Estrutura
 
@@ -46,6 +47,8 @@ node scripts/criar-artigo.mjs clientes/<cliente>/artigos/<slug>.mjs
 ```
 
 O artigo fica em rascunho. Para refazer depois de um reparo, editar o mesmo ficheiro e correr o mesmo comando: o script actualiza o rascunho que criou nesse site.
+
+O script faz também o documento para o cliente validar o texto (`clientes/<cliente>/validacao/…docx`). Na entrega, dizer onde está e perguntar se é para ir para o Drive: `node scripts/documento.mjs <id> --drive`.
 
 ## Sectores regulados
 

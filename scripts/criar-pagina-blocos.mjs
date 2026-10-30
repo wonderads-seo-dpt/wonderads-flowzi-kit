@@ -1,9 +1,12 @@
 // Cria uma página em blocos do WordPress (Gutenberg) em rascunho, para sites sem Elementor, a partir de um ficheiro em
 // paginas/ feito com as peças de scripts/blocos.mjs. Com tipo: 'artigo' no ficheiro, cria um artigo do blogue.
 // Voltar a correr o mesmo ficheiro actualiza o rascunho que ele criou nesse site (o número fica em <ficheiro>.wp.json).
+// No topo vai o bloco de estilo das peças (letras da marca, ícones, telemóvel); estilo: false no ficheiro deixa só o tema.
+// Depois de gravar, faz o documento para o cliente validar o texto em clientes/<cliente>/validacao/ (documento.mjs).
 // uso: node scripts/criar-pagina-blocos.mjs clientes/<cliente>/paginas/<slug>.mjs
 import { pathToFileURL } from 'node:url';
-import { wp, exigirLigacao, paginaEmEdicao, guardarCopia, exigirRascunho, ligacoes, ficheiroDoCliente, registo, site } from './wp.mjs';
+import { estiloDaPagina } from './blocos.mjs';
+import { wp, exigirLigacao, paginaEmEdicao, guardarCopia, exigirRascunho, ligacoes, ficheiroDoCliente, registo, site, cliente } from './wp.mjs';
 
 exigirLigacao();
 const ficheiro = process.argv[2];
@@ -23,7 +26,8 @@ if (!p.titulo || !blocos.length || blocos.some((b) => typeof b !== 'string' || !
 const artigo = p.tipo === 'artigo';
 const rota = artigo ? 'posts' : 'pages';
 // O template só vai se o ficheiro o pedir (um dos "Modelos de página" que o /wp-ligar leu), por exemplo um sem título.
-const corpo = { title: p.titulo, status: 'draft', content: blocos.join('\n\n') };
+const estilo = p.estilo === false ? { bloco: '', avisos: [] } : await estiloDaPagina();
+const corpo = { title: p.titulo, status: 'draft', content: [estilo.bloco, ...blocos].filter(Boolean).join('\n\n') };
 if (p.template) corpo.template = p.template;
 if (p.slug) corpo.slug = p.slug;
 if (artigo && p.resumo) corpo.excerpt = p.resumo;
@@ -62,12 +66,26 @@ if (pagina.status !== 'draft') {
   console.error(`\n  ATENÇÃO: a página ${pagina.id} ficou em "${pagina.status}". Passar a rascunho no painel e avisar.\n`);
   process.exit(1);
 }
-const gravado = (await wp(`wp/v2/${rota}/${pagina.id}?context=edit`)).content?.raw || '';
+const salvo = await wp(`wp/v2/${rota}/${pagina.id}?context=edit`);
+const gravado = salvo.content?.raw || '';
 if (!gravado.includes('<!-- wp:')) {
   console.error(`\n  A página ${pagina.id} foi criada mas o conteúdo não ficou gravado. Enviar este erro à Flowzi.\n`);
   process.exit(1);
 }
 
+// O documento para o cliente validar o texto. Se falhar, a página já está gravada: só se avisa.
+let documento;
+try {
+  const { documentoDePagina } = await import('./validacao.mjs');
+  documento = `\n  documento       ${documentoDePagina(salvo, { site, cliente, seo: p.seo }).relativo} (para o cliente validar o texto)`;
+} catch (e) {
+  documento = `\n  Aviso: a página ficou gravada, mas o documento para o cliente validar não se fez (${e.message}).\n  Repetir com node scripts/documento.mjs ${pagina.id}`;
+}
+
+// Quem não pode gravar HTML no site (um editor, ou um site com o HTML desligado) fica sem o bloco de estilo.
+if (estilo.bloco && !gravado.includes('id="wa-estilo"')) {
+  estilo.avisos.push(`o site retirou o estilo da página (o utilizador da ligação não pode gravar HTML): fica com as letras do tema, sem ícones nem ajustes de telemóvel${blocos.some((b) => b.includes('wa-h1')) ? ', e o título do tema aparece por cima do h1: passar o herói a h2' : ''}. Para ter tudo, ligar com um utilizador administrador`);
+}
 const contagem = (gravado.match(/<!-- wp:[a-z]/g) || []).length;
 console.log(`
   ${artigo ? 'artigo ' : 'página '}         ${pagina.id} · ${p.titulo}
@@ -75,5 +93,5 @@ console.log(`
   blocos          ${contagem}
 
   editar          ${site}/wp-admin/post.php?post=${pagina.id}&action=edit
-  pré-visualizar  ${ligacoes(pagina.id, artigo).previsualizar}
-`);
+  pré-visualizar  ${ligacoes(pagina.id, artigo).previsualizar}${documento}
+${estilo.avisos.map((a) => `\n  Aviso: ${a}.`).join('')}${estilo.bloco ? '\n  O editor mostra a página sem as letras e os ícones; a pré-visualização mostra-a como fica.\n' : ''}`);

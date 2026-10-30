@@ -1,10 +1,20 @@
-// A linha de baixo do Claude Code: em que cliente e em que site se está a trabalhar.
+// A linha de baixo do Claude Code: em que cliente e em que site se está a trabalhar, e se há uma versão nova do kit.
 import { existsSync, readFileSync } from 'node:fs';
-import { activo, pastaDe, nomeComercial } from './clientes.mjs';
+import { join } from 'node:path';
+import { activo, pastaDe, nomeComercial, raiz } from './clientes.mjs';
+
+// Só lê a cache que o novidades.mjs deixa ao abrir o Claude: a linha de baixo nunca vai à rede.
+let versaoNova = '';
+try {
+  const { lerCache, maisRecente } = await import('./repositorio.mjs');
+  let instalada = '';
+  try { instalada = readFileSync(join(raiz, 'VERSAO'), 'utf8').trim(); } catch {}
+  if (maisRecente(lerCache()?.versao, instalada)) versaoNova = ' · versão nova: /actualizar';
+} catch {}
 
 const nome = activo();
 if (!nome) {
-  console.log('Sem cliente activo · /comecar na primeira vez, /cliente depois');
+  console.log(`Sem cliente activo · /comecar na primeira vez, /cliente depois${versaoNova}`);
 } else {
   let onde = 'sem ligação · /wp-ligar ou /shopify-ligar';
   const env = `${pastaDe(nome)}/.env`;
@@ -21,5 +31,5 @@ if (!nome) {
       onde = `${amb === 'live' ? 'SITE REAL, só rascunhos' : amb} · ${identidade(url)}`;
     }
   }
-  console.log(`Cliente: ${nomeComercial(nome)} · ${onde}`);
+  console.log(`Cliente: ${nomeComercial(nome)} · ${onde}${versaoNova}`);
 }
