@@ -246,7 +246,28 @@ export function lerEstiloElementor(s = {}, prefixo = 'typography_', html = '') {
   return limpo(e);
 }
 
+// O estilo de um título atómico do Elementor 4 (e-heading): vem da classe local, na variante de computador sem estado.
+// Cada prop é { $$type, value }; os tamanhos são { size, unit }.
+export function lerEstiloAtomico(el) {
+  const ids = el.settings?.classes?.value || [];
+  const variante = (bp) => ids.map((id) => el.styles?.[id]?.variants?.find((v) => v.meta?.breakpoint === bp && !v.meta?.state)).find(Boolean)?.props || {};
+  const p = variante('desktop');
+  const v = (k, from = p) => from[k]?.value;
+  const transformar = v('text-transform');
+  return limpo({
+    familia: v('font-family'),
+    tamanho: medida(v('font-size')), tablet: medida(v('font-size', variante('tablet'))), telemovel: medida(v('font-size', variante('mobile'))),
+    peso: v('font-weight') ? String(v('font-weight')) : undefined,
+    altura: medida(v('line-height'), 'custom'),
+    espacamento: medida(v('letter-spacing')),
+    maiusculas: transformar === 'uppercase' ? true : ['', 'none', undefined].includes(transformar) ? undefined : transformar,
+    italico: v('font-style') === 'italic' ? true : undefined,
+    cor: corDe(v('color')),
+  });
+}
+
 // Os títulos de uma página Elementor: headings h1 a h6, rótulos do kit e os títulos das caixas com ícone ou imagem.
+// Também os títulos atómicos do Elementor 4 (e-heading).
 export function titulosElementor(elementos = []) {
   const lista = [];
   const andar = (els, seccao) => els.forEach((el, i) => {
@@ -256,7 +277,13 @@ export function titulosElementor(elementos = []) {
       let nivel = '';
       let prefixo = 'typography_';
       let campo = 'title';
-      if (el.widgetType === 'heading') nivel = /(^|\s)wa-rotulo(\s|$)/.test(st._css_classes || '') ? 'rotulo' : st.header_size || 'h2';
+      if (el.widgetType === 'e-heading') {
+        const nivelA = st.tag?.value || 'h2';
+        const html = st.title?.value || '';
+        if (/^h[1-6]$/.test(nivelA) && html) {
+          lista.push({ nivel: nivelA, texto: String(html).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), seccao: s, widget: el, atomico: true, estilo: lerEstiloAtomico(el) });
+        }
+      } else if (el.widgetType === 'heading') nivel = /(^|\s)wa-rotulo(\s|$)/.test(st._css_classes || '') ? 'rotulo' : st.header_size || 'h2';
       else if (['icon-box', 'image-box'].includes(el.widgetType)) { nivel = st.title_size || 'h3'; prefixo = 'title_typography_'; campo = 'title_text'; }
       if ((nivel === 'rotulo' || /^h[1-6]$/.test(nivel)) && st[campo]) {
         lista.push({ nivel, texto: String(st[campo]).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), seccao: s, widget: el, prefixo, campo, estilo: lerEstiloElementor(st, prefixo, st[campo]) });

@@ -55,23 +55,30 @@ if (pagina.status !== 'draft') corrigir.push(`A página está em "${pagina.statu
 const blocos = !elementos.length ? (pagina.content?.raw || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '') : '';
 if (!elementos.length && !blocos.trim()) bloqueia.push('A página não tem conteúdo.');
 
+// Elementor 4 (atómico): as definições são { $$type, value }; os contentores são e-flexbox, e-div-block e e-grid,
+// e os widgets e-heading, e-paragraph, e-button, e-image.
+const val = (v) => (v && typeof v === 'object' && '$$type' in v ? v.value : v);
+const CONTENTORES = new Set(['container', 'e-flexbox', 'e-div-block', 'e-grid']);
+const ligacaoAtomica = (s) => val(val(s?.link)?.destination);
 const widgets = [];
 let fundo = 0;
+let atomicos = 0;
 const andar = (els, nivel) => {
   for (const e of els) {
-    if (e.elType === 'container') fundo = Math.max(fundo, nivel);
+    if (CONTENTORES.has(e.elType)) fundo = Math.max(fundo, nivel);
     if (e.elType === 'widget') widgets.push(e);
+    if (/^e-/.test(e.widgetType || e.elType)) atomicos++;
     andar(e.elements || [], nivel + 1);
   }
 };
 andar(elementos, 1);
 
-const limpar = (t = '') => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+const limpar = (t = '') => String(t).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const textosDe = (w) => {
   const s = w.settings || {};
-  return [s.title, s.editor, s.text, s.title_text, s.description_text,
+  return [val(s.title), s.editor, val(s.text), val(s.paragraph), s.title_text, s.description_text,
     ...(s.tabs || []).flatMap((t) => [t.tab_title, t.tab_content]),
-    ...(s.icon_list || []).map((i) => i.text)].filter(Boolean);
+    ...(s.icon_list || []).map((i) => i.text)].filter((t) => typeof t === 'string' && t);
 };
 const textos = widgets.flatMap((w) => textosDe(w).map(limpar));
 
@@ -80,6 +87,7 @@ if (blocos) textos.push(limpar(blocos));
 const nivelDe = (w) => {
   const s = w.settings || {};
   const t = w.widgetType === 'heading' ? s.header_size || 'h2'
+    : w.widgetType === 'e-heading' ? val(s.tag) || 'h2'
     : ['icon-box', 'image-box'].includes(w.widgetType) ? s.title_size || 'h3'
       : ['accordion', 'toggle'].includes(w.widgetType) ? s.title_html_tag : '';
   return /^h[1-6]$/.test(t || '') ? Number(t[1]) : 0;
@@ -97,7 +105,9 @@ if (h1 > 1) bloqueia.push(`Há ${h1} títulos h1. Deve haver um.`);
 for (let i = 1; i < titulos.length; i++) {
   if (titulos[i] > titulos[i - 1] + 1) { corrigir.push(`Salto na hierarquia de títulos: h${titulos[i - 1]} seguido de h${titulos[i]}.`); break; }
 }
-if (fundo > 3) corrigir.push(`Containers com ${fundo} níveis de profundidade. O máximo combinado é 3.`);
+if (fundo > 3 && !atomicos) corrigir.push(`Containers com ${fundo} níveis de profundidade. O máximo combinado é 3.`);
+// No atómico não há colunas nem widgets compostos: uma grelha de cartões já leva mais níveis. Avisa-se só acima de 6.
+if (fundo > 6 && atomicos) corrigir.push(`Contentores atómicos com ${fundo} níveis de profundidade. Acima de 6 a página fica difícil de editar: juntar caixas.`);
 
 // Títulos do mesmo nível com estilos diferentes (só Elementor), com as mesmas contas do titulos.mjs: entram as caixas
 // com ícone ou imagem, e um título claro sobre fundo escuro não conta como outro estilo.
@@ -120,12 +130,18 @@ for (const c of contadores) {
   }
 }
 // Animações de entrada são permitidas (decisão de 14/10/2026); só se lembra de as ver no navegador. Os contadores continuam a corrigir.
-const animados = widgets.filter((w) => w.settings?._animation && w.settings._animation !== 'none').length;
+const comInteraccoes = (els) => els.reduce((n, e) => n + (Array.isArray(e.interactions) && e.interactions.length ? 1 : 0) + comInteraccoes(e.elements || []), 0);
+const animados = widgets.filter((w) => w.settings?._animation && w.settings._animation !== 'none').length + comInteraccoes(elementos);
 if (animados) melhorias.push(`${animados} elemento(s) com animação de entrada. Ver no navegador, também no telemóvel, que aparecem depois de rolar.`);
 if (contadores.length) corrigir.push(`${contadores.length} contador(es) dependem de animação para aparecer. Confirmar no navegador que aparecem depois de rolar: em alguns sites ficam invisíveis.`);
 
 const imagens = widgets.filter((w) => w.widgetType === 'image');
-const semAlt = imagens.filter((w) => !w.settings?.image?.alt).length + [...blocos.matchAll(/<img\b(?![^>]*\balt="[^"]+")(?![^>]*wp-block-cover__image-background)[^>]*>/gi)].length;
+// Numa imagem atómica por endereço, o alt está em image.src.alt; com o número da biblioteca, vem de lá (não se vê aqui).
+const semAltAtomico = widgets.filter((w) => w.widgetType === 'e-image').filter((w) => {
+  const src = val(val(w.settings?.image)?.src);
+  return !val(src?.id) && !String(val(src?.alt) || '').trim();
+}).length;
+const semAlt = imagens.filter((w) => !w.settings?.image?.alt).length + semAltAtomico + [...blocos.matchAll(/<img\b(?![^>]*\balt="[^"]+")(?![^>]*wp-block-cover__image-background)[^>]*>/gi)].length;
 if (semAlt) bloqueia.push(`${semAlt} imagem(ns) sem texto alternativo.`);
 
 const todo = textos.join('\n');
@@ -134,9 +150,9 @@ if (us) bloqueia.push(`Números em formato americano: ${[...new Set(us)].join(',
 if (/[$€]\s?\d/.test(todo)) corrigir.push('Símbolo de moeda antes do valor. Em português vem depois: 1 234,56 €.');
 if (/\b\d{1,2}\/\d{1,2}\/\d{4}\b/.test(todo) && /\b(0?[1-9]|1[0-2])\/(1[3-9]|2\d|3[01])\/\d{4}\b/.test(todo)) bloqueia.push('Data em formato americano (mês/dia).');
 if (/\S\s[—–]\s\S/.test(todo)) corrigir.push('Travessão a ligar orações. Usar vírgula, dois pontos ou duas frases.');
-const vagos = widgets.filter((w) => w.widgetType === 'button' && /^(clique aqui|saber mais|saiba mais|ver mais)$/i.test(limpar(w.settings?.text)));
+const vagos = widgets.filter((w) => ['button', 'e-button'].includes(w.widgetType) && /^(clique aqui|saber mais|saiba mais|ver mais)$/i.test(limpar(val(w.settings?.text))));
 if (vagos.length) melhorias.push('Botão com texto vago ("Saber mais", "Clique aqui"). Dizer o que acontece a seguir.');
-const botoesSemLink = widgets.filter((w) => w.widgetType === 'button' && !w.settings?.link?.url);
+const botoesSemLink = widgets.filter((w) => (w.widgetType === 'button' && !w.settings?.link?.url) || (w.widgetType === 'e-button' && !ligacaoAtomica(w.settings)));
 // Em blocos: botões sem destino, de texto vago, e âncoras sem um elemento com esse id.
 const botoesBlocos = [...blocos.matchAll(/<a\b([^>]*)class="[^"]*wp-block-button__link[^"]*"([^>]*)>([\s\S]*?)<\/a>/gi)].map((m) => ({ attrs: m[1] + m[2], texto: limpar(m[3]) }));
 const semDestino = botoesBlocos.filter((x) => !/\bhref="[^"]+"/.test(x.attrs)).length;
@@ -148,10 +164,21 @@ if (ancorasBlocos.length) corrigir.push(`Botão(ões) para ${[...new Set(ancoras
 if (botoesSemLink.length) bloqueia.push(`${botoesSemLink.length} botão(ões) sem destino.`);
 // Botões que apontam para uma âncora (#marcar) só funcionam se houver um elemento com esse ID na página.
 const ids = new Set();
-const recolher = (els) => els.forEach((e) => { if (e.settings?._element_id) ids.add(e.settings._element_id); recolher(e.elements || []); });
+const recolher = (els) => els.forEach((e) => {
+  if (e.settings?._element_id) ids.add(e.settings._element_id);
+  if (val(e.settings?._cssid)) ids.add(val(e.settings._cssid));
+  recolher(e.elements || []);
+});
 recolher(elementos);
-const ancorasPartidas = widgets.filter((w) => w.widgetType === 'button' && /^#./.test(w.settings?.link?.url || '') && !ids.has(w.settings.link.url.slice(1)))
-  .map((w) => w.settings.link.url);
+// Âncoras: dos botões clássicos e de qualquer elemento atómico com ligação (caixas-ligação, botões, títulos).
+const comAncora = [];
+const ancoras = (els) => els.forEach((e) => {
+  const u = e.widgetType === 'button' ? e.settings?.link?.url : ligacaoAtomica(e.settings);
+  if (/^#./.test(u || '')) comAncora.push(u);
+  ancoras(e.elements || []);
+});
+ancoras(elementos);
+const ancorasPartidas = comAncora.filter((u) => !ids.has(u.slice(1)));
 if (ancorasPartidas.length) corrigir.push(`Botão(ões) para ${[...new Set(ancorasPartidas)].join(', ')}, que não existe(m) na página. Pôr o destino certo (contactos, telefone, formulário).`);
 const porConfirmar = (todo.match(/\[[^\]]*por confirmar[^\]]*\]/gi) || []);
 if (porConfirmar.length) bloqueia.push(`${porConfirmar.length} ponto(s) [por confirmar] no texto: preencher com o cliente antes de mostrar.`);
@@ -298,10 +325,15 @@ const procurar = (v) => {
   if (Array.isArray(v)) { v.forEach(procurar); return; }
   if (v && typeof v === 'object') {
     if (typeof v.url === 'string' && 'is_external' in v) destinos.push(v.url);
+    // Atómico: a ligação é { $$type: 'url', value }; as imagens por endereço também, e não são ligações.
+    if (v.$$type === 'link') { const u = ligacaoAtomica({ link: v }); if (typeof u === 'string') destinos.push(u); return; }
+    if (v.$$type === 'image') return;
     Object.values(v).forEach(procurar);
   }
 };
-if (blocos) procurar(blocos); else widgets.forEach((w) => procurar(w.settings));
+// As caixas-ligação atómicas (e-flexbox, e-div-block) também contam.
+const ligacoesContentores = (els) => els.forEach((e) => { if (e.elType !== 'widget') procurar(e.settings?.link); ligacoesContentores(e.elements || []); });
+if (blocos) procurar(blocos); else { widgets.forEach((w) => procurar(w.settings)); ligacoesContentores(elementos); }
 const hostDe = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch { return ''; } };
 const interna = (u) => /^\/(?!\/)/.test(u) || (hostDe(u) !== '' && hostDe(u) === hostDe(site));
 const caminho = (u) => (/^\//.test(u) ? u : new URL(u).pathname).replace(/[?#].*$/, '').replace(/\/+$/, '') || '/';
@@ -321,7 +353,7 @@ const mostra = (nome, lista) => {
   console.log(`\n  ${nome} (${lista.length})`);
   for (const i of lista) console.log(`  - ${i}`);
 };
-console.log(blocos ? `\n  ${titulo} · ${pagina.status} · em blocos do WordPress · ${(blocos.match(/<!-- wp:[a-z]/g) || []).length} blocos` : `\n  ${titulo} · ${pagina.status} · ${elementos.length} secções · ${widgets.length} widgets`);
+console.log(blocos ? `\n  ${titulo} · ${pagina.status} · em blocos do WordPress · ${(blocos.match(/<!-- wp:[a-z]/g) || []).length} blocos` : `\n  ${titulo} · ${pagina.status} · ${elementos.length} secções · ${widgets.length} widgets${atomicos ? ` · ${atomicos} elementos atómicos (Elementor 4)` : ''}`);
 console.log(`  SEO · ${milhares(palavras)} palavras, ${minimo > 0 ? `mínimo ${milhares(minimo)}` : `sem mínimo${tipo === 'seo' ? '' : ` (${tipo})`}`} · ${chave ? `palavra-chave "${chave}" (${origemChave}), ${pct(densidade)}%` : 'sem palavra-chave'} · ${internas} ligação(ões) interna(s)`);
 mostra('Bloqueia a publicação', bloqueia);
 mostra('Corrigir antes de mostrar ao cliente', corrigir);

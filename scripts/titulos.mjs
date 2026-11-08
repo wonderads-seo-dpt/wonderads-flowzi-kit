@@ -103,6 +103,8 @@ const tirar = (k, prefixo, { cor, tipo }) => (tipo && k.startsWith(prefixo)) || 
 const novos = JSON.parse(JSON.stringify(elementos));
 const mudados = [];
 for (const x of titulosElementor(novos)) {
+  // Os títulos atómicos (Elementor 4) guardam o estilo numa classe local: este script ainda não os reescreve.
+  if (x.atomico) continue;
   const n = x.nivel;
   const s = x.widget.settings;
   const tinha = x.estilo;

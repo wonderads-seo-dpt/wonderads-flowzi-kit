@@ -81,6 +81,21 @@ async function tranca(caminho, method, body) {
   if (method === 'DELETE' && limpo === 'elementor/v1/cache' && !comParametros) return;
   if (method === 'DELETE') throw new Error('Bloqueado: o kit não apaga páginas nem artigos. Apagar faz-se à mão, no WordPress.');
   if (comParametros) throw new Error(`Bloqueado: o kit não grava em endereços com parâmetros (${caminho}).`);
+  // Imagens (pedido da equipa, 05/11/2026): subir uma imagem nova para a Biblioteca de Media e, a seguir, escrever
+  // o texto alternativo, o título e a legenda dessa mesma imagem. Nunca alterar nem substituir imagens que já lá estavam.
+  const media = limpo.match(/^wp\/v2\/media(?:\/(\d+))?$/);
+  if (method === 'POST' && media) {
+    if (!media[1]) {
+      if (!Buffer.isBuffer(body)) throw new Error('Bloqueado: na Biblioteca de Media o kit só sobe ficheiros de imagem ou de vídeo.');
+      return;
+    }
+    if (!mediaSubidas.has(Number(media[1]))) {
+      throw new Error(`Bloqueado: a imagem ${media[1]} já estava no site. O kit só escreve o texto alternativo das imagens que acabou de subir.`);
+    }
+    const outros = Object.keys(body || {}).filter((k) => !['alt_text', 'title', 'caption'].includes(k));
+    if (outros.length) throw new Error(`Bloqueado: numa imagem o kit só grava o texto alternativo, o título e a legenda, nunca ${outros.join(', ')}.`);
+    return;
+  }
   const pagina = limpo.match(/^wp\/v2\/(pages|posts|elementor_library)(?:\/(\d+))?$/);
   if (method !== 'POST' || !pagina) {
     throw new Error(`Bloqueado: o kit não faz ${method} em ${limpo}. Só cria e altera páginas, artigos e modelos do Elementor em rascunho.`);
@@ -109,10 +124,16 @@ async function tranca(caminho, method, body) {
   }
 }
 
-const cabecalhos = (auth, body) => {
+// Imagens subidas por este processo: só nestas se pode escrever o texto alternativo a seguir.
+const mediaSubidas = new Set();
+
+const cabecalhos = (auth, body, ficheiro) => {
   const h = { Accept: 'application/json' };
   if (auth && WP_USER) h.Authorization = 'Basic ' + Buffer.from(`${WP_USER}:${WP_APP_PASSWORD}`).toString('base64');
-  if (body) h['Content-Type'] = 'application/json';
+  if (ficheiro) {
+    h['Content-Type'] = ficheiro.tipo;
+    h['Content-Disposition'] = `attachment; filename="${ficheiro.nome.replace(/[^\w.-]/g, '-')}"`;
+  } else if (body) h['Content-Type'] = 'application/json';
   return h;
 };
 
@@ -218,11 +239,11 @@ export async function indice() {
     : ' Se estiver certo, pode ser uma protecção do alojamento: enviar à Flowzi.'}`);
 }
 
-export async function wp(caminho, { method = 'GET', body, auth = true } = {}) {
+export async function wp(caminho, { method = 'GET', body, auth = true, ficheiro } = {}) {
   await tranca(caminho, method, body);
   await indice();
   const r = await chamar(enderecoRest(caminho), {
-    method, headers: cabecalhos(auth, body), body: body ? JSON.stringify(body) : undefined,
+    method, headers: cabecalhos(auth, body, ficheiro), body: ficheiro ? body : body ? JSON.stringify(body) : undefined,
   }, method === 'GET');
   const dados = await lerJson(r);
   if (r.ok && typeof dados !== 'object') {
@@ -325,3 +346,21 @@ export const ligacoes = (id, artigo = false) => ({
   editar: `${site}/wp-admin/post.php?post=${id}&action=elementor`,
   previsualizar: `${site}/?${artigo ? 'p' : 'page_id'}=${id}&preview=true`,
 });
+
+// Sobe uma imagem para a Biblioteca de Media e escreve-lhe o texto alternativo e o título.
+const TIPOS_IMAGEM = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', webm: 'video/webm', mp4: 'video/mp4' };
+export const MAX_IMAGEM = 8 * 1024 * 1024;
+export const MAX_VIDEO = 20 * 1024 * 1024;
+export const eVideo = (nome) => /\.(webm|mp4)$/i.test(nome);
+export async function subirImagem(dados, nome, { alt, titulo } = {}) {
+  const ext = nome.split('.').pop().toLowerCase();
+  const tipo = TIPOS_IMAGEM[ext];
+  if (!tipo) throw new Error(`Bloqueado: ${nome} não é uma imagem (jpg, png, webp, gif) nem um vídeo (webm, mp4).`);
+  if (dados.length > (eVideo(nome) ? MAX_VIDEO : MAX_IMAGEM)) throw new Error(`Bloqueado: ${nome} passa do limite (8 MB numa imagem, 20 MB num vídeo). Comprimir antes de subir.`);
+  const criada = await wp('wp/v2/media', { method: 'POST', body: dados, ficheiro: { nome, tipo } });
+  mediaSubidas.add(Number(criada.id));
+  const campos = {};
+  if (alt) campos[tipo.startsWith('video/') ? 'caption' : 'alt_text'] = alt;
+  if (titulo) campos.title = titulo;
+  return Object.keys(campos).length ? wp(`wp/v2/media/${criada.id}`, { method: 'POST', body: campos }) : criada;
+}
