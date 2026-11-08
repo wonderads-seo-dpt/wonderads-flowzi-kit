@@ -1,6 +1,6 @@
 // O repositório da equipa no GitHub: de onde vêm as versões novas do kit e para onde vão as propostas.
 // O nome vive só aqui. KIT_GITHUB_API e KIT_GH existem para os testes (uma API e um gh a fingir): seja qual for
-// a origem, o /actualizar só instala o que vier assinado pela Flowzi.
+// a origem, o /actualizar só instala o que vier assinado (Flowzi ou WonderAds).
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -108,7 +108,7 @@ export function proibido(f) {
   if (!f || /^([a-z]:)?\//i.test(f) || f.split('/').includes('..')) return 'fica fora do kit';
   if (/(^|\/)\.env(\.|$)/i.test(f)) return 'é um .env, com passwords';
   if (/^clientes(\/|$)/.test(f) || f === '.cliente') return 'é de um cliente';
-  if (['MANIFESTO.json', 'ASSINATURA', 'VERSAO'].includes(f)) return 'é a assinatura da versão, que só a Flowzi faz';
+  if (['MANIFESTO.json', 'ASSINATURA', 'VERSAO'].includes(f)) return 'é a assinatura da versão, que se faz com scripts/assinar.mjs ao publicar';
   if (!AREAS.test(f)) return 'fica fora das partes do kit que se propõem (scripts, skills, regras, guarda)';
   return '';
 }

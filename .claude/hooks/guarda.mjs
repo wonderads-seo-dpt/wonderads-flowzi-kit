@@ -91,7 +91,7 @@ if (['Bash', 'PowerShell'].includes(ferramenta)) {
 
   const avisos = [];
   if (/\bligacao\.mjs\b/i.test(c)) avisos.push('a ligação é feita pela pessoa, num terminal à parte, porque pede a password, que não passa pelo chat');
-  else if (/\bactualizar\.mjs\b/i.test(c)) avisos.push('isto actualiza o kit (regras, scripts, skills e guarda). Só se instalam zips assinados pela Flowzi; os clientes ficam como estão');
+  else if (/\bactualizar\.mjs\b/i.test(c)) avisos.push('isto actualiza o kit (regras, scripts, skills e guarda). Só se instalam zips assinados (Flowzi ou WonderAds); os clientes ficam como estão');
   else if (/\bcontribuir\.mjs\b/i.test(c) && /--pr\b/i.test(c.replace(/[`'"^]/g, ''))) avisos.push('isto envia ficheiros do kit para fora do computador (um Pull Request no GitHub da equipa). Só depois de a pessoa ter dito que sim');
   else {
     // O alvo acaba no primeiro separador de comandos: "node -v; ls" é "node -v" seguido de "ls".

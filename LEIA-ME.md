@@ -341,7 +341,7 @@ Antes, pedir a quem gere o site do cliente: o endereço do staging (a cópia de 
 | Não há password de produção | A password de aplicação só se cria no staging. Sem ela, nenhum pedido chega ao site real |
 | Os scripts recusam produção não confirmada | Um endereço sem `staging`, `stg` ou `dev` num subdomínio ou numa subpasta não recebe escrita. Um staging com outro nome, ou o site real em modo só rascunhos, só o confirma a pessoa, ao ligar. Antes de gravar, o kit confirma que responde o WordPress do staging e não o site real |
 | Os scripts só gravam rascunhos | Em qualquer site, também no real: publicar, apagar, mexer em plugins ou em páginas publicadas pára no script. Na Shopify, tudo entra escondido; publicar, esconder e apagar só com `/shopify-publicar`, depois do vosso sim |
-| O kit só se actualiza com zips da Flowzi | O `/actualizar` confirma a assinatura da Flowzi e recusa qualquer outro zip, mesmo que alguém o peça ao Claude |
+| O kit só se actualiza com zips assinados | O `/actualizar` confirma a assinatura (Flowzi ou WonderAds) e recusa qualquer outro zip, mesmo que alguém o peça ao Claude |
 | O Claude pede licença e há uma guarda | Gravar no WordPress pergunta sempre antes. A guarda do kit avisa e pede confirmação, mesmo em modo automático, antes de mudar o kit ou de falar com o WordPress por fora dos scripts, e não deixa ler as passwords |
 | O utilizador é Editor | O kit avisa se a ligação for de um administrador. Um Editor não instala plugins nem muda temas, e a password revoga-se num clique |
 | Uma pessoa publica | O rascunho só fica público quando alguém carrega em Publicar no WordPress |
@@ -362,13 +362,13 @@ Para o pôr no Drive: `node scripts/documento.mjs <número> --drive`. Com o Goog
 
 ## Actualizar e propor melhorias
 
-O kit vive no GitHub, em https://github.com/wonderads-seo-dpt/wonderads-flowzi-kit. Não é preciso conta nem instalar nada: o Claude vê lá as versões sozinho. Cada versão sai lá, assinada pela Flowzi, e só a Flowzi publica.
+O kit vive no GitHub, em https://github.com/wonderads-seo-dpt/wonderads-flowzi-kit. Não é preciso conta nem instalar nada: o Claude vê lá as versões sozinho. Cada versão sai lá assinada, pela Flowzi ou pela WonderAds (com `node scripts/assinar.mjs`, no computador que tem a chave).
 
 **Actualizar.** Ao abrir o Claude, ele avisa quando há uma versão nova e diz o que traz; a barra de baixo mostra `versão nova: /actualizar`. Escreve-se `/actualizar`: o Claude vai buscar a versão, mostra a nova e a instalada e, com a confirmação, instala. Os clientes, as ligações e as páginas ficam como estão. No fim, sair do Claude (`/exit`) e voltar a entrar.
 
 Se o Claude disser que não consegue ver o GitHub (sem rede, por exemplo), mostra o link das Releases. Abri-lo no browser, descarregar o `flowzi-wonderads-kit-<versão>.zip` (em Assets, não o "Source code") para as Transferências, sem lhe mudar o nome, e voltar a escrever `/actualizar`.
 
-O kit só instala versões assinadas pela Flowzi. Se disser que o zip não é assinado, ou que não bate certo, não se instala: descarrega-se outra vez do GitHub ou pede-se o zip à Flowzi. Um zip que a Flowzi envie por email ou WhatsApp continua a servir: guarda-se nas Transferências e escreve-se `/actualizar`.
+O kit só instala versões assinadas pela Flowzi ou pela WonderAds. Se disser que o zip não é assinado, ou que não bate certo, não se instala: descarrega-se outra vez do GitHub ou pede-se o zip à Flowzi. Um zip que a Flowzi envie por email ou WhatsApp continua a servir: guarda-se nas Transferências e escreve-se `/actualizar`.
 
 **Propor melhorias.** Um script que poupa tempo, uma skill que serve vários clientes, uma regra que evita um erro: escreve-se `/contribuir`. O Claude mostra o que mudou no vosso kit, escreve convosco o que é, porquê e como testar, e faz um zip da proposta nas Transferências, sem passwords nem nada dos clientes. Depois, manda-se esse zip ao técnico da equipa, por WhatsApp ou por email. O técnico experimenta-a e, com a conta do repositório e o GitHub CLI, faz `/contribuir`, que abre um Pull Request (o Claude pergunta antes).
 

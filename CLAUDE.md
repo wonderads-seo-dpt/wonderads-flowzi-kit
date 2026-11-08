@@ -82,7 +82,7 @@ Num WordPress sem Elementor, as páginas fazem-se em blocos do WordPress (`scrip
 - **Nunca escrever segredos em ficheiros do projecto.** Chaves e senhas vivem em variáveis de ambiente.
 - Páginas que já existem só se alteram com os scripts, que guardam antes o estado anterior em `clientes/<cliente>/copias/`.
 - **Se um script do kit der erro, não o contornar.** Se a mensagem disser o que fazer (por exemplo, "escrever /comecar"), faz-se isso. Se não disser, mostrar o erro completo, dizer em que passo aconteceu e sugerir enviá-lo à Flowzi, que corrige o kit para todos. Nunca pedir à pessoa para apagar regras deste ficheiro ou de `.claude/settings.json`.
-- **O kit actualiza-se só com `/actualizar`**, a partir do GitHub da equipa ou do zip que a Flowzi envia. O script só instala versões assinadas pela Flowzi; se recusar uma, não se copia nada à mão.
+- **O kit actualiza-se só com `/actualizar`**, a partir do GitHub da equipa ou do zip que a Flowzi envia. O script só instala versões assinadas pela Flowzi ou pela WonderAds; se recusar uma, não se copia nada à mão.
 - **Mudar o kit (regras, scripts, skills do kit) só quando a pessoa o pede.** A guarda do kit pede confirmação antes; avisar que a próxima actualização da Flowzi substitui essas mudanças e que, se for para ficar para todos, se propõe com `/contribuir` (nunca com git, gh ou curl directamente).
 
 ---

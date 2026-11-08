@@ -1,7 +1,7 @@
 // Actualiza o kit a partir de uma versão nova (do GitHub da equipa, o zip da Flowzi ou a pasta já descompactada),
 // sem tocar nos clientes. Substitui scripts/, treino/blueprint.json, CLAUDE.md, LEIA-ME.md, .claude/settings.json,
 // a guarda e as skills do kit. Ficam como estão: clientes/, .cliente e as skills de cada cliente.
-// Só instala versões assinadas pela Flowzi, venham de onde vierem. Para actualizar não é preciso o git.
+// Só instala versões assinadas pela Flowzi ou pela WonderAds, venham de onde vierem. Para actualizar não é preciso o git.
 // uso: node scripts/actualizar.mjs                        vê a última versão no GitHub (o zip vai para as Transferências);
 //                                                         sem acesso, procura o zip mais recente nas Transferências. Diz o que traz
 //      node scripts/actualizar.mjs --ver "<zip, pasta ou link do GitHub>"  diz o que traz, sem mudar nada
@@ -226,7 +226,7 @@ if (!pedido || soVer) {
   const lista = novidades();
   const guardar = aGuardar();
   const nota = guardar.length ? `\n  Não vêm na versão nova e ficam guardados em ${copias}/ ao instalar:\n${guardar.map((f) => `    ${f}`).join('\n')}\n` : '';
-  console.log(`\n  ${origem === descarregado ? 'Descarregado do GitHub para as Transferências' : 'Encontrei'}: ${origem}\n  Versão nova: ${versao} (assinada pela Flowzi)\n  Versão instalada: ${actual}\n${lista ? `\n  O que traz:\n${lista}\n` : ''}${nota}\n  Para instalar: node scripts/actualizar.mjs "${origem}"\n`);
+  console.log(`\n  ${origem === descarregado ? 'Descarregado do GitHub para as Transferências' : 'Encontrei'}: ${origem}\n  Versão nova: ${versao} (assinada)\n  Versão instalada: ${actual}\n${lista ? `\n  O que traz:\n${lista}\n` : ''}${nota}\n  Para instalar: node scripts/actualizar.mjs "${origem}"\n`);
   process.exit(0);
 }
 // Uma versão mais antiga do que a instalada só se instala de propósito.

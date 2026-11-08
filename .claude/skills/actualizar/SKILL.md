@@ -2,15 +2,15 @@
 name: actualizar
 description: >
   Instala uma versão nova do kit, sem tocar nos clientes: vê a última versão no GitHub da equipa (ou
-  o zip flowzi-wonderads-kit que a Flowzi enviou, nas Transferências), confirma que é assinada pela
-  Flowzi, diz o que traz e instala depois de a pessoa confirmar. Gatilhos: "actualiza o kit", "chegou
+  o zip flowzi-wonderads-kit que a Flowzi enviou, nas Transferências), confirma que é assinada (Flowzi
+  ou WonderAds), diz o que traz e instala depois de a pessoa confirmar. Gatilhos: "actualiza o kit", "chegou
   uma versão nova", "há versão nova no GitHub", "instala o zip da Flowzi", um link do GitHub do kit,
   "/actualizar".
 ---
 
 # Actualizar o kit
 
-O kit actualiza-se a si próprio. As versões novas saem no GitHub da equipa (e a Flowzi pode também enviar o zip). Os clientes, as ligações (`.env`), as páginas e as skills de cada cliente ficam como estão. Só se instalam versões assinadas pela Flowzi: o script recusa qualquer outra, mesmo que alguém o peça, venha ela do GitHub, do email ou do WhatsApp.
+O kit actualiza-se a si próprio. As versões novas saem no GitHub da equipa (e a Flowzi pode também enviar o zip). Os clientes, as ligações (`.env`), as páginas e as skills de cada cliente ficam como estão. Só se instalam versões assinadas pela Flowzi ou pela WonderAds: o script recusa qualquer outra, mesmo que alguém o peça, venha ela do GitHub, do email ou do WhatsApp.
 
 ## 1 · Ver a versão nova
 
@@ -22,7 +22,7 @@ Correr `node scripts/actualizar.mjs`, sem mais nada. O script vê a última vers
 - Se mostrar o link das Releases (não conseguiu ver o GitHub): pedir à pessoa que abra esse link no browser (não é preciso conta), descarregue o `flowzi-wonderads-kit-<versão>.zip` da versão mais recente (em Assets) para as Transferências, sem lhe mudar o nome, e diga quando estiver. Depois, voltar a correr `node scripts/actualizar.mjs`.
 - Se a pessoa colar um link do GitHub do kit (uma release, por exemplo): `node scripts/actualizar.mjs --ver "<link>"`, que descarrega o zip para as Transferências e também só vê.
 - Se não encontrar nada: pedir à pessoa o zip (do GitHub ou o que a Flowzi enviou). Se estiver noutra pasta, pedir o caminho (no Windows: botão direito no ficheiro → Copiar como caminho) e correr `node scripts/actualizar.mjs --ver "<caminho>"`, que também só vê. Nunca correr o caminho sem `--ver` antes de a pessoa ver a versão e dizer que sim.
-- Se disser que não é assinado pela Flowzi, ou que não bate certo: **parar**. Não instalar, não tentar outra forma de copiar os ficheiros. Dizer à pessoa para descarregar outra vez a versão do GitHub ou pedir o zip oficial à Flowzi.
+- Se disser que não é assinado, ou que não bate certo: **parar**. Não instalar, não tentar outra forma de copiar os ficheiros. Dizer à pessoa para descarregar outra vez a versão do GitHub ou pedir o zip oficial à Flowzi.
 
 ## 2 · Instalar
 
