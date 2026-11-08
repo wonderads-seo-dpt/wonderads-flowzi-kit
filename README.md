@@ -1,19 +1,21 @@
 # Kit WonderAds · Flowzi
 
-O kit do Claude Code com que a equipa da WonderAds faz páginas e artigos em WordPress (Elementor ou blocos) e em lojas Shopify: as regras da agência, as skills, os scripts e um WordPress de treino. Este repositório é o sítio oficial do kit. Cada versão sai aqui, assinada pela Flowzi, e é aqui que se propõem melhorias.
+O kit do Claude Code com que a equipa da WonderAds faz páginas e artigos em WordPress (Elementor ou blocos) e em lojas Shopify: as regras da agência, as skills, os scripts e um WordPress de treino. Este repositório é o sítio oficial do kit. Cada versão sai aqui, assinada pela Flowzi ou pela WonderAds, e é aqui que se propõem melhorias.
 
 ## Instalar, a primeira vez
 
-1. Em [Releases](https://github.com/wonderads-seo-dpt/wonderads-flowzi-kit/releases), abrir a versão de cima e descarregar o `flowzi-wonderads-kit-<versão>.zip`, em Assets (não o "Source code").
+1. Em [Releases](https://github.com/wonderads-seo-dpt/wonderads-flowzi-kit/releases), abrir a versão de cima e descarregar o `flowzi-wonderads-kit-<versão>.zip`, em Assets. O "Download ZIP" do botão verde "Code" também serve.
 2. Seguir o `LEIA-ME.md` que vem dentro do zip: instalar o Node e o Claude Code, extrair o zip para a pasta do utilizador e escrever `/comecar` no Claude.
 
 ## Actualizar
+
+> **Só uma vez, para quem tem a versão 2026.10.30 ou anterior.** Se o `/actualizar` disser "A assinatura não é da Flowzi", o kit ainda não conhece a assinatura da WonderAds. Do zip que descarregaram (o da release ou o do "Download ZIP"), copiar o ficheiro `scripts/assinatura.mjs` para a pasta `scripts` do vosso kit, substituindo o que lá está, e escrever outra vez `/actualizar`. Daí para a frente funciona sozinho.
 
 No Claude, dentro da pasta do kit, escrever `/actualizar`. O Claude vê a última versão aqui, diz o que traz e instala depois do vosso sim. Os clientes, as ligações e as páginas ficam como estão.
 
 - Ao abrir o Claude, ele avisa quando há uma versão nova e conta o que traz. A barra de baixo mostra `versão nova: /actualizar`.
 - Não é preciso conta no GitHub nem instalar nada. Se o Claude não o conseguir ver (sem rede, por exemplo), mostra o link das Releases: abri-lo no browser, descarregar o `flowzi-wonderads-kit-<versão>.zip` para as Transferências, sem lhe mudar o nome, e voltar a escrever `/actualizar`.
-- O kit só instala versões assinadas pela Flowzi. Um zip alterado, ou que venha de outro sítio, é recusado.
+- O kit só instala versões assinadas pela Flowzi ou pela WonderAds. O "Download ZIP" do `main` passa, porque o `main` é sempre uma versão assinada. Um zip alterado, ou que venha de outro sítio, é recusado.
 
 ## Propor melhorias
 
@@ -35,7 +37,7 @@ Uma proposta pode não entrar tal como veio: pode ficar para mais tarde ou entra
 
 - Nunca pôr aqui `.env`, passwords de aplicação, chaves (Shopify, Pixabay) nem tokens. O `/contribuir` recusa-os, mas a regra é de todos.
 - Nunca pôr dados de clientes: páginas, textos, fotografias, nomes, endereços de staging. Uma skill de cliente só se propõe numa versão geral, sem nada dele.
-- O `main` é sempre igual à última versão assinada, e só a Flowzi o publica. As propostas vêm em ramos ou em zips.
+- O `main` é sempre igual à última versão assinada: depois de juntar alterações, publica-se logo uma versão com `node scripts/assinar.mjs` (só no computador que tem a chave), senão o "Download ZIP" deixa de passar. As propostas vêm em ramos ou em zips.
 - `MANIFESTO.json`, `ASSINATURA` e `VERSAO` são a assinatura da versão. Não se alteram.
 
 ## O que há neste repositório

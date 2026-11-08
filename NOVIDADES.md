@@ -4,6 +4,7 @@ O que muda em cada versão, para quem actualiza. O `/actualizar` mostra as que a
 
 ## 2026.11.08
 
+- O "Download ZIP" do GitHub (`wonderads-flowzi-kit-main.zip`) também serve para actualizar: o `/actualizar` encontra-o nas Transferências e instala-o, desde que o `main` esteja numa versão assinada.
 - Imagens para a Biblioteca de Media: `node scripts/subir-imagem.mjs` sobe as fotografias aprovadas de `clientes/<cliente>/imagens/` com texto alternativo, no máximo 3 de cada vez, e procura antes se já lá estão (`--procurar "termo"`). Nunca apaga nem substitui imagens do site.
 - Elementor 4: o `/wp-rever` e o `titulos.mjs` passam a ler os contentores e os títulos atómicos (e-flexbox, e-heading).
 - Skills de design do taste-skill (design-taste-frontend, gpt-taste, minimalist-ui e outras) passam a vir com o kit.

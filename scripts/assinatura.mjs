@@ -54,7 +54,7 @@ export function verificar(pasta, chaves = CHAVES) {
   const alterados = esperados.filter((f) => presentes.includes(f) && hash(join(pasta, f)) !== m.ficheiros[f]);
   if (aMais.length || emFalta.length || alterados.length) {
     const lista = [...aMais.map((f) => `a mais: ${f}`), ...emFalta.map((f) => `em falta: ${f}`), ...alterados.map((f) => `alterado: ${f}`)];
-    throw new Error(`O zip não bate certo com a assinatura (${lista.slice(0, 5).join('; ')}). Não se instala.`);
+    throw new Error(`O zip não bate certo com a assinatura (${lista.slice(0, 5).join('; ')}). Não se instala. Se veio do "Download ZIP" do GitHub, o main tem alterações que ainda não saíram numa versão assinada: descarregar o zip da última release (em Assets).`);
   }
   return { versao: m.versao || '', ficheiros: new Set(esperados) };
 }

@@ -54,7 +54,8 @@ function descompactar(zip) {
 // O "Extrair tudo" do Windows deixa uma pasta dentro de outra com o mesmo nome: aceitar as duas.
 const pastaDoKit = (p) => (existsSync(join(p, 'scripts', 'clientes.mjs')) || !existsSync(join(p, 'flowzi-wonderads-kit', 'scripts', 'clientes.mjs')) ? p : join(p, 'flowzi-wonderads-kit'));
 
-// As Transferências, também quando o OneDrive as levou, e o Ambiente de trabalho.
+// As Transferências, também quando o OneDrive as levou, e o Ambiente de trabalho. Também o "Download ZIP" do GitHub
+// (wonderads-flowzi-kit-main.zip), que passa na verificação quando o main está numa versão assinada.
 function procurar() {
   const casa = homedir();
   // O OneDrive pessoal ou de empresa ("OneDrive - Empresa") pode ter levado o Ambiente de trabalho.
@@ -63,7 +64,7 @@ function procurar() {
     ...['Downloads', 'Transferências', 'Desktop', 'Ambiente de Trabalho'].map((p) => join(casa, p)),
     ...nuvens.flatMap((n) => ['Downloads', 'Desktop', 'Ambiente de Trabalho'].map((p) => join(n, p))),
   ].filter((p) => existsSync(p));
-  const zips = pastas.flatMap((p) => readdirSync(p).filter((f) => /^(flowzi-)?wonderads-kit.*\.zip$/i.test(f)).map((f) => join(p, f)));
+  const zips = pastas.flatMap((p) => readdirSync(p).filter((f) => /^(flowzi-)?wonderads-(flowzi-)?kit.*\.zip$/i.test(f)).map((f) => join(p, f)));
   return zips.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
 }
 // Confirma uma versão (zip ou pasta) e devolve { novo, versao, ficheiros }. O erro diz sempre de que caminho é, e o
