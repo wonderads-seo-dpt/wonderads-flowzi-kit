@@ -20,6 +20,7 @@ Fazer as perguntas **em blocos de três**, nunca todas de uma vez. Esperar pela 
 ## As perguntas, por ordem
 
 **Bloco 1, o essencial**
+0. Que tipo de página é: página inicial, serviço, patologia, artigo de blogue, destino (anúncio) ou contactos? Decide a checklist do `/seo` que se segue.
 1. Que acção queremos que a pessoa faça nesta página? Uma só.
 2. Quem chega aqui, e de onde? Anúncio, pesquisa, email, ligação a partir de outra página?
 3. O que é que essa pessoa já sabe quando chega, e o que ainda não sabe?

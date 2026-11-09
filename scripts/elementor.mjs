@@ -8,6 +8,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { raiz, pasta } from './wp.mjs';
 import { titulosDaMarca } from './titulos-estilo.mjs';
+import { scriptSchema } from './schema.mjs';
 
 const ficheiroMarca = pasta && existsSync(`${pasta}/marca.json`) ? `${pasta}/marca.json` : `${raiz}/scripts/modelo/marca.json`;
 // replace: o Bloco de Notas pode gravar o ficheiro com BOM, que o JSON.parse não aceita.
@@ -52,7 +53,8 @@ export const texto = (html, { cor = C.texto, tamanho = 17, alinhar = 'left', ext
   });
 
 // contorno: botão só com a borda (o segundo botão de um herói). raio: 8 por defeito, 100 para os redondos.
-export const botao = (etiqueta, destino, { alinhar = 'left', invertido = false, contorno = false, raio: r = 8, fundo, cor, extra = {} } = {}) =>
+// id: o id do botão, para medir as conversões no Analytics e no Tag Manager (ex. 'marcar-consulta-topo'; ver /seo).
+export const botao = (etiqueta, destino, { alinhar = 'left', invertido = false, contorno = false, raio: r = 8, fundo, cor, id, extra = {} } = {}) =>
   widget('button', {
     text: etiqueta, align: alinhar, align_mobile: 'justify',
     link: { url: destino, is_external: '', nofollow: '' },
@@ -60,6 +62,7 @@ export const botao = (etiqueta, destino, { alinhar = 'left', invertido = false, 
     button_text_color: cor || (contorno ? (invertido ? '#FFFFFF' : C.principal) : invertido ? C.principal : C.texto_sobre_acento),
     ...(contorno ? { border_border: 'solid', border_width: caixa(2, 2, 2, 2), border_color: cor || (invertido ? '#FFFFFF' : C.principal) } : {}),
     border_radius: raio(r),
+    ...(id ? { button_css_id: String(id) } : {}),
     text_padding: caixa(18, 36, 18, 36),
     typography_typography: 'custom', typography_font_family: F.corpo,
     typography_font_size: px(16), typography_font_weight: '600',
@@ -107,6 +110,10 @@ export const numero = (valor, legenda, { cor = DESTAQUE, corLegenda = C.texto } 
     titulo(valor, 'p', { cor, tamanho: 44 }),
     texto(legenda, { cor: corLegenda, tamanho: 14 }),
   ]);
+
+// Dados estruturados que o plugin de SEO não gera (MedicalWebPage, MedicalCondition, Service, Physician...): ver /seo.
+// Vai dentro de uma secção, de preferência a última; não se vê na página. FAQPage não: vem das perguntas().
+export const schema = (dados) => widget('html', { html: scriptSchema(dados), _css_classes: 'wa-schema' });
 
 export const perguntas = (lista) =>
   widget('accordion', {

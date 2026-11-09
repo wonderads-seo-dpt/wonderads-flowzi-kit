@@ -99,7 +99,8 @@ function htmlDeElementor(elementos = []) {
         break;
       case 'video': h += marcado('[Vídeo]', s.youtube_url || s.vimeo_url || s.dailymotion_url || s.external_url?.url || s.hosted_url?.url || ''); break;
       case 'google_maps': h += marcado('[Mapa]', s.address || ''); break;
-      case 'html': h += marcado('[Código HTML]', 'não incluído neste documento'); break;
+      // Os dados estruturados (peça schema) não se vêem na página: também não vão para o documento do cliente.
+      case 'html': if (!/^\s*(<script\b[^>]*application\/ld\+json[^>]*>[\s\S]*?<\/script>\s*)+$/i.test(s.html || '')) h += marcado('[Código HTML]', 'não incluído neste documento'); break;
       case 'shortcode': h += marcado('[Shortcode]', s.shortcode || ''); break;
       case 'global': h += marcado('[Widget global]', 'o texto está num modelo à parte'); break;
       case 'spacer': case 'divider': case 'menu-anchor': case 'social-icons': case 'icon': case 'nav-menu': case 'site-logo': break;

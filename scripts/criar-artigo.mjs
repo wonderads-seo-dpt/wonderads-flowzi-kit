@@ -5,6 +5,7 @@
 // Depois de gravar, faz o documento para o cliente validar o texto em clientes/<cliente>/validacao/ (documento.mjs).
 import { pathToFileURL } from 'node:url';
 import { wp, exigirLigacao, site, cliente, guardarCopia, ficheiroDoCliente, registo } from './wp.mjs';
+import { scriptSchema } from './schema.mjs';
 
 exigirLigacao();
 const ficheiro = process.argv[2];
@@ -50,6 +51,8 @@ if (Array.isArray(a.perguntas) && a.perguntas.length) {
   };
   partes.push(`<!-- wp:html -->\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n<!-- /wp:html -->`);
 }
+// Dados estruturados que o plugin de SEO não gera (Article, MedicalWebPage, Physician...): schema: { ... } ou [ ... ] no ficheiro.
+if (a.schema) partes.push(`<!-- wp:html -->\n${scriptSchema(a.schema)}\n<!-- /wp:html -->`);
 
 const corpo = { title: a.titulo, status: 'draft', content: partes.join('\n\n') };
 if (a.slug) corpo.slug = a.slug;

@@ -15,7 +15,7 @@ description: >
 2. Ler `clientes/<cliente>/CLAUDE.md`, sobretudo o tom de voz, o que nunca dizer e as regras aprendidas.
 3. Se houver conteúdo aprovado do cliente (texto do site, documentos na pasta), usar esses factos. **Nunca inventar números, preços, prazos, nomes de médicos ou resultados clínicos.** O que não estiver escrito fica `[por confirmar]` no texto e é dito à pessoa no fim.
 4. Perguntar só o que faltar, no máximo três perguntas: o tema exacto, para quem é, que acção se quer no fim.
-5. Ler `/seo`. A palavra-chave escolhe-se com a pessoa e vai em `seo: { chave: '...' }` no ficheiro do artigo; o artigo tem pelo menos 1 500 palavras, salvo outro valor no `seo.json` do cliente.
+5. Ler `/seo`. A palavra-chave escolhe-se com a pessoa e vai em `seo: { chave: '...' }` no ficheiro do artigo; o artigo tem pelo menos 1 500 palavras, salvo outro valor no `seo.json` do cliente. Seguir a checklist `artigo.md` do `/seo` (antes de escrever e no fim, antes de entregar), com as regras comuns: telefones com `*` ou `**` e a nota de custo, o botão de conversão com `id` (por exemplo `marcar-consulta-blog`), autor, revisão e datas, fontes nas afirmações. **Schema sempre:** Article ou BlogPosting e BreadcrumbList; o que o site não gera vai em `schema: { ... }` no ficheiro do artigo (em Elementor, a peça `schema(...)`).
 
 ## Estrutura
 
@@ -23,7 +23,7 @@ description: >
 - Resposta directa nos primeiros dois parágrafos. Quem chega de uma pesquisa quer a resposta, não a introdução.
 - Subtítulos que são perguntas reais, quando fizer sentido. Secções curtas.
 - Fecho com o passo seguinte concreto (marcar consulta, ver a página do serviço).
-- Resumo entre 140 e 160 caracteres, a dizer o que a pessoa ganha em ler. Vai para o campo `resumo`.
+- Resumo entre 140 e 155 caracteres, a dizer o que a pessoa ganha em ler. Vai para o campo `resumo`.
 
 ## Ligação interna
 

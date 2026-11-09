@@ -13,7 +13,7 @@ Correr isto sempre, mesmo quando a página parece bem: muitos problemas não se 
 
 ## Primeiro, o script
 
-Correr `node scripts/rever.mjs <id|endereço>`; numa página de SEO, com `--chave "palavra-chave"` (a que se escolheu com a pessoa, nunca uma inventada; se não houver, perguntar). Verifica sozinho o h1, a hierarquia de títulos, a profundidade dos containers, os widgets de código, os contadores, as animações, o texto alternativo, os números e as datas em formato americano, os travessões, os botões sem destino e o título da página. Só lê, não escreve nada.
+Correr `node scripts/rever.mjs <id|endereço>`; numa página de SEO, com `--chave "palavra-chave"` (a que se escolheu com a pessoa, nunca uma inventada; se não houver, perguntar). Verifica sozinho o h1, a hierarquia de títulos, a profundidade dos containers, os widgets de código, os contadores, as animações, o texto alternativo, os números e as datas em formato americano, os travessões, os botões sem destino e o título da página. Mostra também os dados estruturados (linha `Schema ·`: os da página e os do Yoast) e acusa os repetidos e o JSON inválido; um widget ou bloco só com JSON-LD não conta como código. Só lê, não escreve nada.
 
 Verifica também o SEO, como explica o `/seo`: as palavras do texto visível contra o mínimo do cliente (1 500 por defeito, no `seo.json` do cliente), a palavra-chave no h1, nas primeiras 100 palavras, no endereço e no título para o Google, e se se repete demais, os títulos do mesmo nível com estilos diferentes (Elementor) e as ligações internas. Sem `--chave`, usa a do ficheiro da página (`seo: { chave }`) ou a do `seo.json`; sem nenhuma, diz que não a verificou. Página de destino ou de contactos: `--tipo destino`. A linha `SEO ·` no topo resume as contas.
 
@@ -45,9 +45,16 @@ Depois, percorrer à mão o que o script diz que não verificou, com a lista aba
 - [ ] Página de SEO com o mínimo de palavras do cliente, sem palha
 - [ ] Títulos do mesmo nível com o mesmo estilo
 - [ ] Título da página entre 50 e 60 caracteres
-- [ ] Meta description entre 140 e 160 caracteres
+- [ ] Meta description entre 140 e 155 caracteres
 - [ ] Endereço curto, em minúsculas, sem palavras de ligação
-- [ ] Dados estruturados coerentes com o que está visível na página
+- [ ] Dados estruturados coerentes com o que está visível na página, sem duplicar os do plugin de SEO
+- [ ] A checklist do tipo de página do `/seo` percorrida (`home.md`, `servico-patologia.md`, `artigo.md`), com os pontos por fazer ditos à pessoa
+
+### Contactos e conversão
+- [ ] Cada telefone com `*` (fixo, começa por 2) ou `**` (móvel, começa por 9), e a nota «* Chamada para a Rede Fixa Nacional» / «** Chamada para a Rede Móvel Nacional» na página
+- [ ] Cada botão de conversão com um `id` que diz o sítio e a página
+- [ ] Contactos iguais aos do Perfil de Empresa Google
+- [ ] Sem promessas de resultado, cura ou garantia; números e afirmações de eficácia com fonte
 
 ### Ligações
 - [ ] Todas as ligações internas apontam para páginas que existem

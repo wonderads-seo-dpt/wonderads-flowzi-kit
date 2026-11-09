@@ -40,7 +40,7 @@ const C = marca.cores;
 export default {
   titulo: 'Ortodontia invisível',        // o nome no painel e no separador do browser
   handle: 'ortodontia-invisivel',        // o endereço: /pages/ortodontia-invisivel
-  seo: { titulo: '50 a 60 caracteres', descricao: '140 a 160 caracteres' },
+  seo: { titulo: '50 a 60 caracteres', descricao: '140 a 155 caracteres' },
   elementos: [
     seccao([
       titulo('Um sorriso alinhado, sem aparelho à vista', 'h1', { cor: '#FFFFFF' }),
@@ -81,7 +81,7 @@ Criar `clientes/<cliente>/paginas/<handle>.mjs`:
 export default {
   titulo: 'Sobre nós',              // é o h1 da página: no texto só h2 e h3
   handle: 'sobre-nos',
-  seo: { titulo: '50 a 60 caracteres', descricao: '140 a 160 caracteres' },
+  seo: { titulo: '50 a 60 caracteres', descricao: '140 a 155 caracteres' },
   blocos: [
     ['h2', 'Quem somos'],
     ['p', 'Texto. Pode levar <strong>negrito</strong>, <em>itálico</em> e <a href="/collections/all">ligações</a>.'],
@@ -103,7 +103,7 @@ export default {
 
 ## SEO
 
-Página ou artigo de SEO: seguir `/seo` e pôr a palavra-chave em `seo: { titulo, descricao, chave }`. O rever não lê a loja: antes de gravar, verificar com a lista "Shopify" do `/seo`.
+Página ou artigo de SEO: seguir `/seo` e pôr a palavra-chave em `seo: { titulo, descricao, chave }`. O rever não lê a loja: antes de gravar, verificar com a lista "Shopify" do `/seo`. Em qualquer página ou artigo, seguir a checklist do tipo (`home.md`, `servico-patologia.md`, `artigo.md`) e as regras comuns do `/seo` (telefones com `*` ou `**` e a nota de custo, botões com `id`).
 
 ## Gravar
 

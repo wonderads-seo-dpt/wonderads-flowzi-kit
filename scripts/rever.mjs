@@ -2,23 +2,25 @@
 // Diz o que verificou e o que não conseguiu verificar. O telemóvel vê-se no navegador.
 // Também o SEO (ver /seo): palavras do texto visível contra o mínimo do cliente, a palavra-chave (h1, início do texto,
 // endereço, título para o Google, repetição), estilos dos títulos e ligações internas.
-// uso: node scripts/rever.mjs <id|endereço> [--chave "palavra-chave"] [--palavras N | --tipo destino]
+// Também as regras comuns das checklists da WonderAds: telefones com * (fixo) ou ** (móvel) e a nota de custo, e botões com id.
+// uso: node scripts/rever.mjs <id|endereço> [--chave "palavra-chave"] [--palavras N | --tipo destino|home]
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { exigirLigacao, paginaEmEdicao, lerElementor, ligacoes, cliente, pasta, site } from './wp.mjs';
 import { titulosElementor, variantes } from './titulos-estilo.mjs';
+import { lerSchemas, soSchema } from './schema.mjs';
 
 // O que vale no kit. Cada cliente muda só o que for diferente em clientes/<cliente>/seo.json (ver /seo).
 const PADRAO = {
   minimo_palavras: 1500,
-  tipos: { destino: 0, contactos: 0 },
+  tipos: { destino: 0, contactos: 0, home: 0 },
   densidade_maxima: 2.5,
   minimo_ligacoes_internas: 2,
   titulo: [50, 60],
-  descricao: [140, 160],
+  descricao: [140, 155],
   paginas: {},
 };
 
-const USO = 'uso: node scripts/rever.mjs <id|endereço> [--chave "palavra-chave"] [--palavras N | --tipo destino]';
+const USO = 'uso: node scripts/rever.mjs <id|endereço> [--chave "palavra-chave"] [--palavras N | --tipo destino|home]';
 exigirLigacao();
 const opcoes = {};
 const posicionais = [];
@@ -120,7 +122,8 @@ for (const { nivel, estilos } of variantes(titulosElementor(elementos))) {
   corrigir.push(`Títulos ${nivel} com ${estilos.length} estilos diferentes: uniformizar pelo marca.json → titulos (página feita pelo kit: gravar outra vez o ficheiro dela; outra página Elementor: node scripts/titulos.mjs ${pagina.id}).${diferem.length ? ` Diferem em: ${diferem.map(([nome, v]) => `${nome} (${v.join(', ')})`).join('; ')}.` : ''}`);
 }
 
-const codigo = widgets.filter((w) => ['html', 'shortcode'].includes(w.widgetType));
+// Um widget HTML só com JSON-LD (a peça schema) é dados estruturados, não código a fazer de página.
+const codigo = widgets.filter((w) => ['html', 'shortcode'].includes(w.widgetType) && !(w.widgetType === 'html' && soSchema(w.settings?.html)));
 if (codigo.length) corrigir.push(`${codigo.length} widget(s) de código ou shortcode. Confirmar que não estão a fazer o trabalho de um widget real.`);
 
 const contadores = widgets.filter((w) => w.widgetType === 'counter');
@@ -150,6 +153,17 @@ if (us) bloqueia.push(`Números em formato americano: ${[...new Set(us)].join(',
 if (/[$€]\s?\d/.test(todo)) corrigir.push('Símbolo de moeda antes do valor. Em português vem depois: 1 234,56 €.');
 if (/\b\d{1,2}\/\d{1,2}\/\d{4}\b/.test(todo) && /\b(0?[1-9]|1[0-2])\/(1[3-9]|2\d|3[01])\/\d{4}\b/.test(todo)) bloqueia.push('Data em formato americano (mês/dia).');
 if (/\S\s[—–]\s\S/.test(todo)) corrigir.push('Travessão a ligar orações. Usar vírgula, dois pontos ou duas frases.');
+// Telefones (checklists WonderAds): * nos fixos (2xx), ** nos móveis (9xx), e a nota de custo na página.
+// Só números escritos com separadores (912 345 678, 220.123.456): um NIF ou uma licença seguidos não contam.
+const NUM_TEL = /(?<![\d*])(?:\+351\s?)?([29])\d{2}[ .]\d{3}[ .]\d{3}(?![\d.])(\s?\*{1,2})?/g;
+const textoTel = [todo, limpar(blocos)].join('\n');
+const telefones = [...textoTel.matchAll(NUM_TEL)];
+const telSemMarca = [...new Set(telefones.filter((m) => !m[2] || m[2].trim() !== (m[1] === '9' ? '**' : '*')).map((m) => m[0].replace(/\s?\*+$/, '').trim()))];
+if (telSemMarca.length) corrigir.push(`Telefone(s) sem a marca de custo certa: ${telSemMarca.join(', ')}. Fixos (começam por 2) levam *, móveis (começam por 9) levam **, logo a seguir ao número.`);
+const temFixo = telefones.some((m) => m[1] === '2');
+const temMovel = telefones.some((m) => m[1] === '9');
+if (temFixo && !/Chamada para a Rede Fixa Nacional/i.test(textoTel)) corrigir.push('Falta a nota «* Chamada para a Rede Fixa Nacional», junto dos contactos ou no fim da página.');
+if (temMovel && !/Chamada para a Rede M[oó]vel Nacional/i.test(textoTel)) corrigir.push('Falta a nota «** Chamada para a Rede Móvel Nacional», junto dos contactos ou no fim da página.');
 const vagos = widgets.filter((w) => ['button', 'e-button'].includes(w.widgetType) && /^(clique aqui|saber mais|saiba mais|ver mais)$/i.test(limpar(val(w.settings?.text))));
 if (vagos.length) melhorias.push('Botão com texto vago ("Saber mais", "Clique aqui"). Dizer o que acontece a seguir.');
 const botoesSemLink = widgets.filter((w) => (w.widgetType === 'button' && !w.settings?.link?.url) || (w.widgetType === 'e-button' && !ligacaoAtomica(w.settings)));
@@ -162,10 +176,19 @@ const idsBlocos = new Set([...blocos.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1
 const ancorasBlocos = botoesBlocos.map((x) => (x.attrs.match(/\bhref="(#[^"]+)"/) || [])[1]).filter((h) => h && !idsBlocos.has(h.slice(1)));
 if (ancorasBlocos.length) corrigir.push(`Botão(ões) para ${[...new Set(ancorasBlocos)].join(', ')}, que não existe(m) na página. Pôr o destino certo (contactos, telefone, formulário).`);
 if (botoesSemLink.length) bloqueia.push(`${botoesSemLink.length} botão(ões) sem destino.`);
+// Botões de conversão sem id (checklists WonderAds): sem id, o Analytics e o Tag Manager não os distinguem.
+const CONVERSAO = /marc|agend|consulta|avalia|whatsapp|contact|lig(ar|ue)|telefon|pedir|reserv/i;
+const destinoConversao = (u = '') => /^tel:|wa\.me|whatsapp\.com|#(marcar|contact|formul)/i.test(u);
+const semIdElementor = widgets.filter((w) => w.widgetType === 'button' && (CONVERSAO.test(limpar(w.settings?.text)) || destinoConversao(w.settings?.link?.url))
+  && !w.settings?.button_css_id && !w.settings?._element_id).length;
+const semIdBlocos = [...blocos.matchAll(/<!-- wp:button( \{[\s\S]*?\})? -->([\s\S]*?)<!-- \/wp:button -->/g)]
+  .filter((m) => !/<div\b[^>]*\bid="[^"]+"[^>]*wp-block-button\b|<div\b[^>]*wp-block-button\b[^>]*\bid="[^"]+"|<a\b[^>]*\bid="[^"]+"/.test(m[2]) && (CONVERSAO.test(limpar(m[2])) || destinoConversao((m[2].match(/href="([^"]*)"/) || [])[1]))).length;
+if (semIdElementor + semIdBlocos) melhorias.push(`${semIdElementor + semIdBlocos} botão(ões) de conversão sem id. Dar um id que diga o sítio e a página (botao(texto, destino, { id: 'marcar-consulta-topo' })), para medir no Analytics e no Tag Manager.`);
 // Botões que apontam para uma âncora (#marcar) só funcionam se houver um elemento com esse ID na página.
 const ids = new Set();
 const recolher = (els) => els.forEach((e) => {
   if (e.settings?._element_id) ids.add(e.settings._element_id);
+  if (e.settings?.button_css_id) ids.add(e.settings.button_css_id);
   if (val(e.settings?._cssid)) ids.add(val(e.settings._cssid));
   recolher(e.elements || []);
 });
@@ -302,6 +325,34 @@ const [tituloGoogle, origemTitulo] = yoast.title ? [visivel(yoast.title), 'Yoast
 const [descricao, origemDescricao] = yoast.description ? [visivel(yoast.description), 'Yoast'] : semVariaveis(rm.rank_math_description) ? [rm.rank_math_description, 'Rank Math']
   : doFicheiro.descricao ? [doFicheiro.descricao, doFicheiro.origem] : pagina.type === 'post' && pagina.excerpt?.raw ? [visivel(pagina.excerpt.raw), 'resumo do artigo'] : ['', ''];
 
+// Dados estruturados (ver /seo): os da página (peça schema, perguntas) contra os que o Yoast já gera. Nunca em duplicado.
+const htmlSchema = elementos.length ? widgets.filter((w) => w.widgetType === 'html').map((w) => w.settings?.html || '').join('\n') : (pagina.content?.raw || '');
+const daPagina = lerSchemas(htmlSchema);
+if (widgets.some((w) => w.widgetType === 'accordion' && w.settings?.faq_schema === 'yes')) daPagina.tipos.push('FAQPage');
+if (daPagina.invalidos) bloqueia.push(`${daPagina.invalidos} bloco(s) de dados estruturados (JSON-LD) com JSON inválido. Gravar outra vez com a peça schema().`);
+const doYoast = [...new Set([].concat(yoast.schema?.['@graph'] || []).flatMap((n) => [].concat(n?.['@type'] || [])).map(String))];
+const tiposPagina = [...new Set(daPagina.tipos)];
+const repetidos = tiposPagina.filter((t) => doYoast.includes(t));
+if (repetidos.length) corrigir.push(`Dados estruturados em duplicado: ${repetidos.join(', ')} já vêm do Yoast. Tirar da peça schema() (ver /seo).`);
+if (doYoast.includes('WebPage') && tiposPagina.includes('MedicalWebPage')) melhorias.push('O Yoast já gera um WebPage e a página traz um MedicalWebPage: em vez de duas páginas no schema, mudar o tipo no Yoast (separador Schema, Tipo de página) e pôr lá o reviewedBy, ou confirmar que o @id é o mesmo.');
+// Toda a página nova leva o schema do seu tipo (checklists WonderAds): o que nem a página nem o Yoast têm, falta.
+// Com o Rank Math não se lê o que o plugin gera: aí só se avisa.
+const todosTipos = new Set([...tiposPagina, ...doYoast]);
+const temUm = (lista) => lista.some((t) => todosTipos.has(t));
+const LOCAL = ['MedicalClinic', 'Dentist', 'MedicalBusiness', 'LocalBusiness', 'Physician', 'Optician', 'Pharmacy', 'MedicalOrganization', 'HealthAndBeautyBusiness'];
+const CONTEUDO = ['MedicalWebPage', 'Service', 'MedicalTherapy', 'MedicalProcedure', 'MedicalCondition', 'TherapeuticProcedure', 'Product', 'Article', 'BlogPosting'];
+const esperado = tipo === 'home' ? [['um negócio local (MedicalClinic, Dentist ou LocalBusiness, com morada, telefone, horário e @id)', LOCAL], ['WebSite', ['WebSite']]]
+  : pagina.type === 'post' ? [['Article ou BlogPosting (autor, datas, editora)', ['Article', 'BlogPosting', 'NewsArticle', 'MedicalWebPage']], ['BreadcrumbList', ['BreadcrumbList']]]
+  : tipo === 'seo' ? [['o do conteúdo (MedicalWebPage, e MedicalCondition numa patologia, MedicalTherapy ou Service num serviço)', CONTEUDO], ['BreadcrumbList', ['BreadcrumbList']]]
+  : [];
+const faltaSchema = esperado.filter(([, l]) => !temUm(l)).map(([nome]) => nome);
+const rankMath = !doYoast.length && Object.keys(rm).some((k) => k.startsWith('rank_math'));
+if (faltaSchema.length) {
+  const texto = `Falta schema nesta página: ${faltaSchema.join('; ')}. Acrescentá-lo com a peça schema(...), só com dados de documentos do cliente (ver /seo, "Dados estruturados").`;
+  (rankMath ? melhorias : corrigir).push(rankMath ? `${texto} Com o Rank Math não se lê o que o plugin gera: confirmar no Rich Results Test antes de acrescentar.` : texto);
+}
+const linhaSchema =`  Schema · na página: ${tiposPagina.length ? tiposPagina.join(', ') : 'nenhum'} · do Yoast: ${doYoast.length ? doYoast.join(', ') : (rm.rank_math_title !== undefined ? 'não se lê (Rank Math)' : 'nenhum lido')}`;
+
 let densidade = 0;
 if (chave) {
   if (!textosH1.some(temChave)) corrigir.push(`A palavra-chave "${chave}" não está no h1.`);
@@ -355,13 +406,15 @@ const mostra = (nome, lista) => {
 };
 console.log(blocos ? `\n  ${titulo} · ${pagina.status} · em blocos do WordPress · ${(blocos.match(/<!-- wp:[a-z]/g) || []).length} blocos` : `\n  ${titulo} · ${pagina.status} · ${elementos.length} secções · ${widgets.length} widgets${atomicos ? ` · ${atomicos} elementos atómicos (Elementor 4)` : ''}`);
 console.log(`  SEO · ${milhares(palavras)} palavras, ${minimo > 0 ? `mínimo ${milhares(minimo)}` : `sem mínimo${tipo === 'seo' ? '' : ` (${tipo})`}`} · ${chave ? `palavra-chave "${chave}" (${origemChave}), ${pct(densidade)}%` : 'sem palavra-chave'} · ${internas} ligação(ões) interna(s)`);
+console.log(linhaSchema);
 mostra('Bloqueia a publicação', bloqueia);
 mostra('Corrigir antes de mostrar ao cliente', corrigir);
 mostra('Melhorias', melhorias);
 console.log(`
   Não verificado por este script, ver à mão:
   - telemóvel: abrir ${blocos ? `${ligacoes(pagina.id, pagina.type === 'post').previsualizar} no telemóvel ou com o browser estreito` : `${ligacoes(pagina.id, pagina.type === 'post').editar} e carregar no ícone do telemóvel`}
-  - contraste de cores${descricao ? ' e ' : ', meta description e '}dados estruturados (plugin de SEO)${chave ? '' : `
+  - contraste de cores${descricao ? '' : ' e meta description'}
+  - dados estruturados válidos para o Google: a página publicada no Rich Results Test${chave ? '' : `
   - palavra-chave: voltar a correr com --chave "..." (ver /seo)`}
   - ligações internas a apontar para páginas que existem
   - testemunhos com consentimento e alegações do sector

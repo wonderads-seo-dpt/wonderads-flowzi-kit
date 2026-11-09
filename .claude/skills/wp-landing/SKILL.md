@@ -19,7 +19,7 @@ description: >
    - o pedido da pessoa, se tiver o essencial: para quem é, de onde vem o texto, que acção, que estrutura.
 
    Se faltar o essencial, fazer no máximo três perguntas. Nunca inventar preços, nomes de médicos, números ou testemunhos: o que não está escrito fica como `[por confirmar]` no texto.
-4. Numa página de SEO, ler primeiro `/seo`: a palavra-chave escolhe-se com a pessoa e vai no ficheiro em `seo: { chave: '...', titulo: '...', descricao: '...' }`, com pelo menos 1 500 palavras. Numa página de destino ou de contactos: `seo: { tipo: 'destino' }`.
+4. Numa página de SEO, ler primeiro `/seo`: a palavra-chave escolhe-se com a pessoa e vai no ficheiro em `seo: { chave: '...', titulo: '...', descricao: '...' }`, com pelo menos 1 500 palavras. Numa página de destino ou de contactos: `seo: { tipo: 'destino' }`; na página inicial, `seo: { tipo: 'home' }`. Em qualquer página, ler no `/seo` a checklist do tipo dela (`home.md`, `servico-patologia.md` ou `artigo.md`) e as regras comuns: telefones com `*` ou `**` e a nota de custo, botões de conversão com `id`, sem promessas de resultado. **Schema sempre:** a página leva o do seu tipo (tabela em "Dados estruturados" no `/seo`); o que o site não gera entra com `schema(...)` no ficheiro da página.
 
 ## Construir
 
@@ -36,6 +36,7 @@ Escrever um ficheiro `clientes/<cliente>/paginas/<slug>.mjs` com as peças de `s
 | `lista([...])` · `caixaIcone(icone, titulo, texto)` | Argumentos e serviços |
 | `numero(valor, legenda)` | Números fixos, em formato português (`2 400`) |
 | `perguntas([[p, r], ...])` | Perguntas frequentes em acordeão |
+| `schema({ '@type': ... })` | Dados estruturados que o site ainda não tem (não se vêem): ver "Dados estruturados" no `/seo` |
 | `imagem(url, alt)` | Imagens, sempre com texto alternativo |
 | `cartao([...], { fundo, borda, largura })` | Caixas com fundo e cantos redondos: resumo, alerta, prós e contras |
 | `citacao(frase)` | Frase em destaque, com barra na cor de acento |
@@ -78,7 +79,7 @@ Dizer, por esta ordem:
 
 1. O endereço de edição no Elementor e o de pré-visualização. Antes de entregar, ver a pré-visualização com a largura de um telemóvel (375 px, com o Claude in Chrome se estiver ligado) e corrigir o que sair da largura ou ficar ilegível.
 2. Quantas secções e elementos foram criados.
-3. Um título SEO (50 a 60 caracteres) e uma meta description (140 a 160), já contados, para a pessoa colar no plugin de SEO do site (Yoast ou Rank Math).
+3. Um título SEO (50 a 60 caracteres) e uma meta description (140 a 155), já contados, para a pessoa colar no plugin de SEO do site (Yoast ou Rank Math).
 4. O que ficou `[por confirmar]` e precisa de olho humano.
 5. O caminho do .docx de validação, para enviar ao cliente.
 6. Para ver a pré-visualização é preciso ter sessão iniciada no wp-admin desse site, no mesmo browser.

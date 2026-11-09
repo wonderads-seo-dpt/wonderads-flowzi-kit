@@ -2,6 +2,13 @@
 
 O que muda em cada versão, para quem actualiza. O `/actualizar` mostra as que ainda não estão instaladas.
 
+## 2026.11.09
+
+- Checklists de SEO da WonderAds no `/seo`, uma por tipo de página: página inicial (`home.md`), serviço ou patologia (`servico-patologia.md`) e artigo (`artigo.md`). O Claude lê a do tipo antes de escrever e no fim diz o que ficou por fazer. O `/wp-briefing` começa por perguntar o tipo de página.
+- Regras comuns a todas as páginas (regra 11 do `CLAUDE.md`): telefones com `*` (fixo) ou `**` (móvel) e a nota «Chamada para a Rede Fixa/Móvel Nacional», botões de conversão com `id` (`botao(texto, destino, { id: 'marcar-consulta-topo' })`), contactos iguais aos do Perfil de Empresa Google, sem promessas de resultado. Descrição para o Google até 155 caracteres.
+- Schema sempre: cada página nova leva o schema do seu tipo, e o que o Yoast ou o Rank Math não gerarem entra na página com a peça `schema(...)` (ou `schema: {...}` num artigo). O FAQPage continua a vir das perguntas.
+- `/wp-rever`: acusa telefones sem `*`/`**` e a nota em falta, botões de conversão sem id, schema em falta, repetido com o do Yoast ou com JSON inválido, e mostra a linha `Schema ·`. Página inicial: `--tipo home`, sem mínimo de palavras.
+
 ## 2026.11.08
 
 - O "Download ZIP" do GitHub (`wonderads-flowzi-kit-main.zip`) também serve para actualizar: o `/actualizar` encontra-o nas Transferências e instala-o, desde que o `main` esteja numa versão assinada.

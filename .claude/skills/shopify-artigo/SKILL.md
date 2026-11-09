@@ -16,7 +16,7 @@ description: >
 
 ## Estrutura
 
-A mesma do `/wp-artigo`: título que é a pergunta ou a promessa (é o h1; no texto só h2 e h3), resposta directa nos dois primeiros parágrafos, secções curtas, fecho com o passo seguinte (ver o produto, a colecção, marcar). Resumo entre 140 e 160 caracteres.
+A mesma do `/wp-artigo`: título que é a pergunta ou a promessa (é o h1; no texto só h2 e h3), resposta directa nos dois primeiros parágrafos, secções curtas, fecho com o passo seguinte (ver o produto, a colecção, marcar). Resumo entre 140 e 155 caracteres.
 
 Para ligações internas, `node scripts/shopify-listar.mjs` mostra as páginas e os artigos da loja; para produtos e colecções, ler a loja pública. Propor três a seis ligações; não alterar outras páginas.
 
@@ -30,7 +30,7 @@ export default {
   handle: 'como-escolher',
   blog: 'novidades',                  // o handle do blogue; se a loja só tiver um, pode ficar de fora
   autor: 'Equipa da Loja',            // o nome que aparece no artigo
-  resumo: '140 a 160 caracteres',     // aparece na lista do blogue e é a descrição para o Google
+  resumo: '140 a 155 caracteres',     // aparece na lista do blogue e é a descrição para o Google
   etiquetas: ['guia', 'inverno'],
   imagem: { ficheiro: 'imagens/capa.jpg', alt: 'Descrição para quem não vê' },   // ou { url: 'https://...', alt }
   seo: { titulo: '50 a 60 caracteres' },
@@ -45,7 +45,7 @@ As perguntas frequentes entram no fim do texto, com título "Perguntas frequente
 
 ## SEO
 
-Página ou artigo de SEO: seguir `/seo` e pôr a palavra-chave em `seo: { titulo, descricao, chave }`. O rever não lê a loja: antes de gravar, verificar com a lista "Shopify" do `/seo`.
+Página ou artigo de SEO: seguir `/seo` e pôr a palavra-chave em `seo: { titulo, descricao, chave }`. O rever não lê a loja: antes de gravar, verificar com a lista "Shopify" do `/seo`. Em qualquer página ou artigo, seguir a checklist do tipo (`home.md`, `servico-patologia.md`, `artigo.md`) e as regras comuns do `/seo` (telefones com `*` ou `**` e a nota de custo, botões com `id`).
 
 ## Gravar
 

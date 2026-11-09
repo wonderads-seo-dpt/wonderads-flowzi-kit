@@ -9,6 +9,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { raiz, pasta } from './wp.mjs';
 import { titulosDaMarca, validarChamada } from './titulos-estilo.mjs';
+import { scriptSchema } from './schema.mjs';
 
 const ficheiroMarca = pasta && existsSync(`${pasta}/marca.json`) ? `${pasta}/marca.json` : `${raiz}/scripts/modelo/marca.json`;
 export const marca = JSON.parse(readFileSync(ficheiroMarca, 'utf8').replace(/^\uFEFF/, ''));
@@ -139,7 +140,8 @@ export const texto = (html, { cor = C.texto, tamanho = 17, alinhar = 'left', pes
 };
 
 // Os botões juntam-se sozinhos num grupo de botões (core/buttons) quando ficam lado a lado. No telemóvel ocupam a largura toda.
-export const botao = (etiqueta, destino, { invertido = false, contorno = false, raio = 8, fundo, cor, ...o } = {}) => {
+// id: o id do botão, para medir as conversões no Analytics e no Tag Manager (ex. 'marcar-consulta-topo'; ver /seo).
+export const botao = (etiqueta, destino, { invertido = false, contorno = false, raio = 8, fundo, cor, id, ...o } = {}) => {
   const bg = contorno ? undefined : fundo || (invertido ? '#FFFFFF' : C.acento);
   const tx = cor || (contorno ? (invertido ? '#FFFFFF' : C.principal) : invertido ? C.principal : C.texto_sobre_acento);
   const extra = classes(contorno && 'is-style-outline', 'wa-b', proprio(o));
@@ -147,8 +149,10 @@ export const botao = (etiqueta, destino, { invertido = false, contorno = false, 
     className: extra,
     style: { color: { ...(bg ? { background: bg } : {}), text: tx }, border: { radius: `${raio}px` }, typography: { textDecoration: 'none' } },
   };
+  // A âncora do bloco (suporte "anchor" do core/button) vive só no id do <div>: o WordPress lê-a do HTML.
+  const ancora = id ? String(id).replace(/[^\w-]/g, '-') : '';
   const link = `<a class="${classes('wp-block-button__link', 'has-text-color', bg && 'has-background', 'wp-element-button')}"${attrHtml('href', esc(destino))} style="${css({ 'border-radius': `${raio}px`, color: tx, 'background-color': bg, 'text-decoration': 'none' })}">${etiqueta}</a>`;
-  return bloco('button', a, `<div class="${classes('wp-block-button', extra)}">${link}</div>`);
+  return bloco('button', a, `<div${attrHtml('id', ancora)} class="${classes('wp-block-button', extra)}">${link}</div>`);
 };
 const eBotao = (h) => h.startsWith('<!-- wp:button ');
 const botoes = (lista, alinhar = 'left') => bloco('buttons', { layout: { type: 'flex', ...(alinhar !== 'left' ? { justifyContent: alinhar } : {}) } }, `<div class="wp-block-buttons">${lista.join('\n\n')}</div>`);
@@ -278,6 +282,10 @@ export const numero = (valor, legenda, { cor = DESTAQUE, corLegenda = C.texto } 
 // O título da caixa é um h3: com um h3 no marca.json fica igual aos outros h3; sem ele, 21 px como sempre.
 export const caixaIcone = (nome, t, desc, { alinhar, ...o } = {}) =>
   grupo([cabecalho(t, 'h3', { alinhar: alinhar || 'left', icone: icone(nome) }, { tamanho: 21, peso: 700 }), texto(desc, { tamanho: 16, alinhar: alinhar || 'left' })], { classe: classes('wa-caixa', proprio(o)) });
+
+// Dados estruturados que o plugin de SEO não gera (MedicalWebPage, MedicalCondition, Service, Physician...): ver /seo.
+// Um bloco HTML só com o JSON-LD, que não se vê na página. FAQPage não: vem das perguntas(). Na Shopify fica de fora.
+export const schema = (dados) => bloco('html', {}, scriptSchema(dados));
 
 // Perguntas que abrem e fecham (core/details), em caixas, com a marcação FAQPage para o Google.
 export const perguntas = (lista) => {
