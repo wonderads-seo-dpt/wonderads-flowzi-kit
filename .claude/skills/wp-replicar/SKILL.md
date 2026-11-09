@@ -22,6 +22,8 @@ A pessoa dá um endereço de que gosta; o Claude estuda-o e faz uma página do c
 4. Perguntar só o que faltar, numa mensagem:
    - **O que se copia:** o desenho com as cores e as letras do cliente (por defeito), ou também as cores e as letras da referência?
    - **O conteúdo:** de onde vem o texto (briefing em `briefings/`, uma página do cliente, ou o pedido). Sem texto aprovado, o que faltar fica `[por confirmar]`.
+   - **O tipo de página:** página inicial, serviço, patologia, artigo, destino ou contactos. Decide a checklist do `/seo` que se segue.
+5. Ler `/seo`: a checklist do tipo (`home.md`, `servico-patologia.md`, `artigo.md`) e as regras comuns. Numa página de SEO, a palavra-chave escolhe-se com a pessoa e vai em `seo: { chave, titulo, descricao }` no ficheiro (`seo: { tipo: 'home' }` ou `'destino'` quando for o caso). O desenho vem da referência; a estrutura de SEO (secções de base do tipo, h1, resposta no topo, extensão) vem da checklist. Se as duas chocarem, a checklist ganha e diz-se à pessoa no plano.
 
 ## 2 · Ver a referência
 
@@ -35,7 +37,7 @@ Ler `.claude/skills/wp-design/principios.md`. Mostrar à pessoa uma tabela, uma 
 |---|---|---|---|
 | 1 | Herói com foto a toda a largura, título branco grande ao centro, 2 botões | `seccao` com `imagemFundo`, `sobreposicao`, `alturaMinima: 640`; `titulo h1`, com o h1 de `titulos` a 72 px e peso 300; `botao` + `botao` com `contorno` | Promessa da página; foto da clínica (`imagens/`) |
 
-Mais as medidas que se vão usar: largura do conteúdo, tamanhos de letra, raio dos botões, espaço entre secções, cores. Os títulos nunca vão título a título: seguem `titulos` no `marca.json` (`.claude/skills/design/titulos.md`). Por defeito (letras do cliente, ou um estilo aprovado), ficam os `titulos` que o cliente já tem; se ainda não os tiver, propõem-se a partir da marca ou do estilo. Só se a pessoa escolheu no passo 1 também as letras da referência se propõem os títulos dela (h1, h2, h3, rótulo, palavras realçadas), com o aviso de que passam a valer para todas as páginas deste cliente, e só se gravam com o "sim". Juntar ou tirar secções que não fazem sentido para o cliente, e dizer porquê. Esperar pelo "sim" da pessoa.
+Mais as medidas que se vão usar: largura do conteúdo, tamanhos de letra, raio dos botões, espaço entre secções, cores. Os títulos nunca vão título a título: seguem `titulos` no `marca.json` (`.claude/skills/design/titulos.md`). Por defeito (letras do cliente, ou um estilo aprovado), ficam os `titulos` que o cliente já tem; se ainda não os tiver, propõem-se a partir da marca ou do estilo. Só se a pessoa escolheu no passo 1 também as letras da referência se propõem os títulos dela (h1, h2, h3, rótulo, palavras realçadas), com o aviso de que passam a valer para todas as páginas deste cliente, e só se gravam com o "sim". Juntar ou tirar secções que não fazem sentido para o cliente, e dizer porquê. Na tabela, marcar as secções que a checklist do tipo pede e que a referência não tem (por exemplo perguntas frequentes, como decorre, sinais de alarme): entram com o desenho das outras. Esperar pelo "sim" da pessoa.
 
 ## 4 · Construir
 
@@ -53,6 +55,8 @@ Regras do kit que se mantêm: widgets reais (nunca HTML num widget de código), 
 
 Gravar com `node scripts/criar-pagina.mjs clientes/<cliente>/paginas/<slug>.mjs` (sempre rascunho).
 
+Na construção valem as regras comuns do `/seo`: um só h1, títulos sem saltos, telefones com `*`/`**` e a nota de custo, botões de conversão com `botao(..., { id })`, ligações internas reais, e **o schema do tipo de página sempre**, com `schema(...)` para o que o site não gerar.
+
 ## 5 · Comparar e afinar
 
 Correr `node scripts/inspeccionar.mjs "<endereço de pré-visualização>"` sobre o rascunho (no treino entra sozinho; num staging, a pré-visualização pede sessão: ver com o Claude in Chrome ou pedir prints à pessoa). Pôr os prints do rascunho ao lado dos da referência, secção a secção, em computador e telemóvel, e escrever o que está diferente: tamanhos, espaços, alinhamentos, proporções das colunas.
@@ -64,9 +68,13 @@ Corrigir o ficheiro e gravar de novo. Atenção: numa página que já foi vista,
 
 No máximo duas voltas; depois, mostrar à pessoa o que ainda difere e porquê (por exemplo: a referência usa um widget pago ou uma animação).
 
-## 6 · Entregar
+## 6 · Rever
 
-Como no `/wp-landing`: endereço de edição e de pré-visualização, o que ficou `[por confirmar]`, título SEO e meta description. Dizer de que site veio o desenho e o que se mudou para o cliente. Sugerir `/wp-rever <id>`.
+Correr `node scripts/rever.mjs <id>` (com `--chave "..."` numa página de SEO, `--tipo home` ou `--tipo destino` quando for o caso) e corrigir o que disser em "Bloqueia" e "Corrigir" antes de entregar. Percorrer a checklist do tipo e anotar o que ficou por fazer.
+
+## 7 · Entregar
+
+Como no `/wp-landing`: endereço de edição e de pré-visualização, o que ficou `[por confirmar]`, a palavra-chave, o número de palavras, título SEO e meta description já contados, os tipos de schema acrescentados, o resultado do rever e os pontos da checklist por fazer. Dizer de que site veio o desenho e o que se mudou para o cliente.
 
 ## Com aviso, quando a pessoa o pede
 

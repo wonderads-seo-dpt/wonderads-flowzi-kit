@@ -4,6 +4,8 @@ O que muda em cada versão, para quem actualiza. O `/actualizar` mostra as que a
 
 ## 2026.11.09
 
+- Redesign com SEO: o `/wp-seccao` corre o `/wp-rever` na página original e na cópia, e a secção nova não pode perder SEO (h1, palavra-chave, títulos, telefones com `*`/`**`, ids dos botões, schema). O `/wp-replicar` pergunta o tipo de página, segue a checklist dele, põe o schema e corre o `/wp-rever` antes de entregar.
+
 - Checklists de SEO da WonderAds no `/seo`, uma por tipo de página: página inicial (`home.md`), serviço ou patologia (`servico-patologia.md`) e artigo (`artigo.md`). O Claude lê a do tipo antes de escrever e no fim diz o que ficou por fazer. O `/wp-briefing` começa por perguntar o tipo de página.
 - Regras comuns a todas as páginas (regra 11 do `CLAUDE.md`): telefones com `*` (fixo) ou `**` (móvel) e a nota «Chamada para a Rede Fixa/Móvel Nacional», botões de conversão com `id` (`botao(texto, destino, { id: 'marcar-consulta-topo' })`), contactos iguais aos do Perfil de Empresa Google, sem promessas de resultado. Descrição para o Google até 155 caracteres.
 - Schema sempre: cada página nova leva o schema do seu tipo, e o que o Yoast ou o Rank Math não gerarem entra na página com a peça `schema(...)` (ou `schema: {...}` num artigo). O FAQPage continua a vir das perguntas.

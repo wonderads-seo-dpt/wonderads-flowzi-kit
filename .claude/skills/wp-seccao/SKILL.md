@@ -18,11 +18,13 @@ Perguntar que página (endereço, slug ou id). Correr:
 node scripts/seccao.mjs --listar <página>
 ```
 
-Mostrar a lista numerada de secções, com o primeiro título de cada uma, e confirmar qual é a secção a mudar. Se o script disser que a página não tem conteúdo Elementor, explicar que deve ser WPBakery ou blocos do WordPress e que esta skill só troca secções de páginas Elementor. Numa página feita pelo kit em blocos, refaz-se o ficheiro e grava-se de novo com `criar-pagina-blocos.mjs`.
+Mostrar a lista numerada de secções, com o primeiro título de cada uma, e confirmar qual é a secção a mudar.
+
+**SEO antes de mexer:** correr `node scripts/rever.mjs <página>` sobre a original (com `--chave "..."` se se souber a palavra-chave, `--tipo home` na página inicial) e guardar o resultado: é a referência para a cópia. Ver na secção a mudar o que conta para o SEO e não se pode perder: o h1 (se for o herói), a palavra-chave nas primeiras 100 palavras, os níveis dos títulos, telefones com `*`/`**` e a nota de custo, botões com `id`, ligações internas e widgets de schema (`wa-schema`). Se o script disser que a página não tem conteúdo Elementor, explicar que deve ser WPBakery ou blocos do WordPress e que esta skill só troca secções de páginas Elementor. Numa página feita pelo kit em blocos, refaz-se o ficheiro e grava-se de novo com `criar-pagina-blocos.mjs`.
 
 ## 2 · Perceber o pedido
 
-Ler o conteúdo da secção actual. Por defeito, **o texto mantém-se**, porque o cliente já o aprovou. Muda o desenho. Se a pessoa pedir texto novo, aplicar as regras do `clientes/<cliente>/CLAUDE.md`.
+Ler o conteúdo da secção actual. Por defeito, **o texto mantém-se**, porque o cliente já o aprovou. Muda o desenho. Se a pessoa pedir texto novo, aplicar as regras do `clientes/<cliente>/CLAUDE.md` e as regras comuns do `/seo`, com a checklist do tipo da página (`home.md`, `servico-patologia.md`, `artigo.md`) para a parte que a secção cobre.
 
 Perguntar só o que faltar: que tipo de desenho (colunas, cartões, lista com ícones, fundo escuro) e se há referência de outro site.
 
@@ -31,6 +33,8 @@ Se o pedido for sobre o aspecto dos títulos ("os títulos estão sem graça", "
 ## 3 · Construir
 
 Escrever `clientes/<cliente>/paginas/<slug>-seccao-<n>.mjs` com `export default seccao([...])`, com as peças de `scripts/elementor.mjs` (ver a tabela em `/wp-landing`), com a mesma primeira linha (`import`) de `clientes/<cliente>/paginas/exemplo-implantes.mjs` e as cores do `clientes/<cliente>/marca.json`. Os títulos vão sem tamanho nem peso: seguem `titulos` no `marca.json`. Antes de construir, correr `node scripts/titulos.mjs --ver <página>`: se o `marca.json` ainda não tiver `titulos`, ou se o estilo mais usado na página for outro, propor `titulos` a partir dos títulos da página (`.claude/skills/design/titulos.md`) e gravar só com o sim. Sem isto, a secção nova sai com títulos diferentes dos do resto da página.
+
+A secção nova mantém o SEO da antiga: os mesmos níveis de títulos (um h1 só se a antiga o tinha), a palavra-chave onde estava, as ligações internas, os telefones com `*`/`**` (e a nota, se estava nesta secção), os botões de conversão com `botao(..., { id })` (o mesmo id da antiga, para as conversões continuarem a contar) e o schema da página: se a secção antiga tinha um widget de schema, vai também para a nova com `schema(...)`. Se a página não tiver o schema do seu tipo (o rever diz "Falta schema"), acrescentá-lo nesta secção.
 
 ## 4 · Gravar
 
@@ -50,9 +54,13 @@ O script:
 - cria uma **página nova em rascunho**, com a secção trocada e as outras iguais;
 - confirma no fim que o original ficou intacto.
 
-## 5 · Entregar
+## 5 · Rever a cópia
 
-Mostrar o resumo do script: original intacto, secção antes e depois, e as ligações para editar, pré-visualizar e comparar com o original.
+Correr `node scripts/rever.mjs <id da cópia>` com as mesmas opções da original e comparar: a cópia não pode ter apontamentos novos de SEO (h1, saltos de títulos, palavra-chave, palavras abaixo do mínimo, telefones, nota de custo, botões sem id, schema em falta ou repetido, ligações internas a menos). Se tiver, corrigir o ficheiro e gravar com `--copia`. Os que já vinham da original dizem-se à pessoa, sem os corrigir fora da secção pedida.
+
+## 6 · Entregar
+
+Mostrar o resumo do script: original intacto, secção antes e depois, e as ligações para editar, pré-visualizar e comparar com o original. Juntar o SEO: o que o rever disse da original e da cópia, e o que melhorou ou ficou igual.
 
 Dizer que, se a nova versão for aprovada, quem gere o site decide como a pôr no lugar da original. O Claude não substitui páginas publicadas.
 
